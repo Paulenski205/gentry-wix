@@ -1,95 +1,54 @@
 
-/* Mimics typical Wix site styling */
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, Arial, sans-serif;
-  color: #333;
+/* Container styling */
+.quote-form-container {
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   background-color: #fff;
-  margin: 0;
   padding: 0;
-  text-align: center;
+  max-width: 960px;
+  margin: 40px auto;
+  overflow: hidden;
 }
 
-h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
+/* Welcome screen layout */
+.welcome-page {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
 }
 
-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
+.image-banner {
+  flex: 2;
+  background-image: url('https://gentrystinson.com/path-to-your-homepage-image.jpg'); /* Replace with actual */
+  background-size: cover;
+  background-position: center;
+  position: relative;
 }
 
-input[type="text"],
-input[type="number"],
-select {
-  padding: 10px;
-  width: 100%;
-  max-width: 300px;
-  margin: 0 auto 20px auto;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 16px;
-}
-
-button {
-  background-color: #116DFF;
+.image-banner h1 {
   color: white;
-  border: none;
-  padding: 10px 20px;
-  margin: 5px;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  font-size: 2.5rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
 }
 
-button:hover {
-  background-color: #0f5cd7;
-}
-
-.form-page {
-  display: none;
-}
-
-.form-page.active {
-  display: block;
-}
-
-.image-options {
+.welcome-bottom {
+  flex: 1;
+  background-color: rgb(107, 94, 78);
   display: flex;
   justify-content: center;
-  gap: 20px;
-  margin-bottom: 20px;
+  align-items: center;
 }
 
-.image-options img {
-  width: 100px;
-  height: 100px;
-  cursor: pointer;
-  border: 2px solid transparent;
+.begin-button {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  padding: 14px 28px;
+  font-size: 16px;
   border-radius: 4px;
-  transition: border 0.2s ease;
-}
-
-.image-options input {
-  display: none;
-}
-
-.image-options input:checked + img {
-  border: 2px solid #116DFF;
-}
-
-.image-options img:hover {
-  border: 2px solid #0f5cd7;
-}
-
-#successMessage,
-#errorMessage {
-  font-weight: bold;
-  margin-top: 20px;
+  cursor: pointer;
 }
