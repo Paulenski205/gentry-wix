@@ -1,33 +1,13 @@
 
 class QuoteForm extends HTMLElement {
   connectedCallback() {
+    // Load external CSS
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@780289da51a6ae02263f89a27dd5519c0ff98d9a/wix-form-styles.css";
+    document.head.appendChild(link);
+
     this.innerHTML = `
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          text-align: center;
-        }
-        .form-page {
-          display: none;
-        }
-        .active {
-          display: block;
-        }
-        .image-options img {
-          width: 100px;
-          cursor: pointer;
-          border: 2px solid transparent;
-        }
-        .image-options input {
-          display: none;
-        }
-        .image-options input:checked + img {
-          border: 2px solid blue;
-        }
-        .image-options img:hover {
-          border: 2px solid green;
-        }
-      </style>
       <form id="quoteForm">
         <div class="form-page active" id="page1">
           <h2>Customer Information</h2>
