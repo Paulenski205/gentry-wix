@@ -10,7 +10,8 @@ class QuoteForm extends HTMLElement {
     this.quoteData = {};
 
     // Inject HTML
-    this.innerHTML = `
+this.innerHTML = `
+
       <div class="quote-form-container">
         <!-- Page 1: Welcome -->
         <div class="form-page welcome-page active" id="page1">
