@@ -1,4 +1,3 @@
-
 /* Container styling */
 .quote-form-container {
   border-radius: 16px;
@@ -19,7 +18,7 @@
 
 .image-banner {
   flex: 2;
-  background-image: url('https://gentrystinson.com/path-to-your-homepage-image.jpg'); /* Replace with actual */
+  background-image: url('https://gentrystinson.com/path-to-your-homepage-image.jpg'); /* Replace this */
   background-size: cover;
   background-position: center;
   position: relative;
@@ -61,7 +60,6 @@
   display: none;
 }
 
-/* Input field groupings */
 .form-group {
   margin-bottom: 20px;
 }
@@ -110,4 +108,48 @@
 
 .nav-button:hover {
   background-color: #0f5cd7;
+}
+
+/* Page 3: Room Selector */
+#page3 {
+  background-color: #f5f5f5;
+  padding: 40px;
+  display: none;
+  text-align: center;
+}
+
+.image-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 20px;
+  justify-items: center;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.room-option {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  max-width: 160px;
+}
+
+.room-option.selected {
+  border-color: #116DFF;
+}
+
+.room-option img {
+  width: 100%;
+  display: block;
+  height: auto;
+}
+
+.room-option label {
+  display: block;
+  margin-top: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
 }
