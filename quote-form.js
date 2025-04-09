@@ -3,7 +3,7 @@ class QuoteForm extends HTMLElement {
     // Load external CSS
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@main/wix-form-styles.css";
+    link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@28e67130725fe3a81f359c10cefca56e010d2356/wix-form-styles.css";
     document.head.appendChild(link);
 
     // Create quoteData object
