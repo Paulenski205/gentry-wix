@@ -1,35 +1,30 @@
 class QuoteForm extends HTMLElement {
   connectedCallback() {
-    // Load external CSS
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@28e67130725fe3a81f359c10cefca56e010d2356/wix-form-styles.css";
+    link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@main/wix-form-styles.css";
     document.head.appendChild(link);
 
-    // Create quoteData object
     this.quoteData = {};
 
-    // Inject HTML
-this.innerHTML = `
-
+    this.innerHTML = `
       <div class="quote-form-container">
-        <!-- Page 1: Welcome -->
+
+        <!-- Page 1 -->
         <div class="form-page welcome-page active" id="page1">
-          <div class="image-banner">
-            <h1>Your Dream Design</h1>
-          </div>
+          <div class="image-banner"><h1>Your Dream Design</h1></div>
           <div class="welcome-bottom">
             <button id="beginButton" class="begin-button">Begin</button>
           </div>
         </div>
 
-        <!-- Page 2: Contact Info -->
+        <!-- Page 2 -->
         <div class="form-page" id="page2">
           <h2 style="color: white;">Tell us about yourself</h2>
           <div class="form-group"><label>Customer Name*</label><input type="text" id="customerName" required></div>
           <div class="form-group"><label>Address</label><input type="text" id="address"></div>
           <div class="form-group"><label>City*</label><input type="text" id="city" required></div>
-          <div class="form-group"><label>State (Abbreviation)*</label>
+          <div class="form-group"><label>State*</label>
             <select id="state" required>
               <option value="">Select State</option>
               <option value="AZ">AZ</option>
@@ -47,7 +42,7 @@ this.innerHTML = `
           </div>
         </div>
 
-        <!-- Page 3: Room Type Selector -->
+        <!-- Page 3 -->
         <div class="form-page" id="page3">
           <h2>Select a Room</h2>
           <div class="image-selector-grid">
@@ -73,10 +68,22 @@ this.innerHTML = `
             <button id="nextPage3" class="nav-button">Next</button>
           </div>
         </div>
+
+        <!-- Page 4 -->
+        <div class="form-page" id="page4">
+          <h2>Kitchen Design: Step 1</h2>
+          <div class="kitchen-step active" id="kitchenStep1">
+            <p>Coming soon: choose your kitchen style...</p>
+          </div>
+          <div class="nav-buttons">
+            <button id="prevPage4" class="nav-button">Previous</button>
+            <button id="nextPage4" class="nav-button">Next</button>
+          </div>
+        </div>
+
       </div>
     `;
 
-    // Page switching logic
     this.currentPage = 1;
     this.showPage = (pageNum) => {
       const pages = this.querySelectorAll(".form-page");
@@ -86,21 +93,25 @@ this.innerHTML = `
       this.currentPage = pageNum;
     };
 
-    // Event listeners
+    // Page nav
     this.querySelector("#beginButton").addEventListener("click", () => this.showPage(2));
     this.querySelector("#prevPage2").addEventListener("click", () => this.showPage(1));
     this.querySelector("#nextPage2").addEventListener("click", () => this.showPage(3));
     this.querySelector("#prevPage3").addEventListener("click", () => this.showPage(2));
     this.querySelector("#nextPage3").addEventListener("click", () => {
-      if (this.quoteData.roomType) {
-        console.log("✅ Room selected:", this.quoteData.roomType);
-        this.showPage(4); // Placeholder — Page 4 coming next
+      if (this.quoteData.roomType === "Kitchen") {
+        this.quoteData.kitchen = {}; // Initialize kitchen object
+        this.showPage(4);
       } else {
-        alert("Please select a room type.");
+        alert("Room selected is not Kitchen — this flow only built for Kitchen right now.");
       }
     });
+    this.querySelector("#prevPage4").addEventListener("click", () => this.showPage(3));
+    this.querySelector("#nextPage4").addEventListener("click", () => {
+      alert("Next kitchen step coming soon...");
+    });
 
-    // Image selection logic
+    // Room type selection
     const options = this.querySelectorAll(".room-option");
     options.forEach((opt) => {
       opt.addEventListener("click", () => {
@@ -110,7 +121,7 @@ this.innerHTML = `
       });
     });
 
-    this.showPage(1); // Initial page
+    this.showPage(1);
   }
 }
 

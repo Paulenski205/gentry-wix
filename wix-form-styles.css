@@ -14,24 +14,26 @@
   display: flex;
   flex-direction: column;
   height: 600px;
+  overflow: hidden;
 }
 
 .image-banner {
   flex: 2;
-  background-image: url('https://gentrystinson.com/path-to-your-homepage-image.jpg'); /* Replace this */
+  background-image: url('https://static.wixstatic.com/media/daaed2_ddd95b246f944d598ee05d08035961c2~mv2.png/v1/fill/w_1323,h_910,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/daaed2_ddd95b246f944d598ee05d08035961c2~mv2.png');
   background-size: cover;
   background-position: center;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .image-banner h1 {
   color: white;
   font-size: 2.5rem;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   margin: 0;
+  padding: 0 20px;
+  text-align: center;
 }
 
 .welcome-bottom {
@@ -40,6 +42,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 20px;
 }
 
 .begin-button {
@@ -50,6 +53,7 @@
   font-size: 16px;
   border-radius: 4px;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
 /* Page 2 background */
@@ -152,4 +156,94 @@
   font-weight: 600;
   font-size: 14px;
   color: #333;
+}
+
+/* Page 4: Kitchen Wizard */
+#page4 {
+  background-color: #fdfdfd;
+  padding: 40px;
+  display: none;
+  text-align: center;
+}
+
+/* Substep containers */
+.kitchen-step {
+  display: none;
+}
+
+.kitchen-step.active {
+  display: block;
+}
+
+/* Gallery for kitchen options */
+.kitchen-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 20px;
+  justify-items: center;
+  margin-bottom: 30px;
+}
+
+.kitchen-option {
+  border: 2px solid transparent;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  max-width: 160px;
+}
+
+.kitchen-option.selected {
+  border-color: #116DFF;
+}
+
+.kitchen-option img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.kitchen-option label {
+  display: block;
+  margin-top: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Dimensions inputs */
+.dimensions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.dimension-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.dimension-row input {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Notes textarea */
+textarea {
+  width: 100%;
+  max-width: 500px;
+  height: 120px;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 10px;
 }
