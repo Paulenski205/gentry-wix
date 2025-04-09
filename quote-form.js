@@ -69,11 +69,37 @@ class QuoteForm extends HTMLElement {
           </div>
         </div>
 
-        <!-- Page 4 -->
+        <!-- Page 4: Kitchen Wizard -->
         <div class="form-page" id="page4">
           <h2>Kitchen Design: Step 1</h2>
           <div class="kitchen-step active" id="kitchenStep1">
-            <p>Coming soon: choose your kitchen style...</p>
+            <h3>Select your preferred kitchen style(s):</h3>
+            <div class="kitchen-gallery" id="kitchenStyles">
+              <div class="kitchen-option" data-style="Modern">
+                <img src="https://via.placeholder.com/160?text=Modern" />
+                <label>Modern</label>
+              </div>
+              <div class="kitchen-option" data-style="Traditional">
+                <img src="https://via.placeholder.com/160?text=Traditional" />
+                <label>Traditional</label>
+              </div>
+              <div class="kitchen-option" data-style="Rustic">
+                <img src="https://via.placeholder.com/160?text=Rustic" />
+                <label>Rustic</label>
+              </div>
+              <div class="kitchen-option" data-style="Farmhouse">
+                <img src="https://via.placeholder.com/160?text=Farmhouse" />
+                <label>Farmhouse</label>
+              </div>
+              <div class="kitchen-option" data-style="Transitional">
+                <img src="https://via.placeholder.com/160?text=Transitional" />
+                <label>Transitional</label>
+              </div>
+              <div class="kitchen-option" data-style="Minimalist">
+                <img src="https://via.placeholder.com/160?text=Minimalist" />
+                <label>Minimalist</label>
+              </div>
+            </div>
           </div>
           <div class="nav-buttons">
             <button id="prevPage4" class="nav-button">Previous</button>
@@ -93,31 +119,50 @@ class QuoteForm extends HTMLElement {
       this.currentPage = pageNum;
     };
 
-    // Page nav
+    // Navigation Events
     this.querySelector("#beginButton").addEventListener("click", () => this.showPage(2));
     this.querySelector("#prevPage2").addEventListener("click", () => this.showPage(1));
     this.querySelector("#nextPage2").addEventListener("click", () => this.showPage(3));
     this.querySelector("#prevPage3").addEventListener("click", () => this.showPage(2));
     this.querySelector("#nextPage3").addEventListener("click", () => {
       if (this.quoteData.roomType === "Kitchen") {
-        this.quoteData.kitchen = {}; // Initialize kitchen object
+        this.quoteData.kitchen = { style: [] };
         this.showPage(4);
       } else {
-        alert("Room selected is not Kitchen — this flow only built for Kitchen right now.");
+        alert("Only Kitchen flow is available at this time.");
       }
     });
     this.querySelector("#prevPage4").addEventListener("click", () => this.showPage(3));
     this.querySelector("#nextPage4").addEventListener("click", () => {
+      console.log("✅ Kitchen styles selected:", this.quoteData.kitchen.style);
       alert("Next kitchen step coming soon...");
     });
 
-    // Room type selection
-    const options = this.querySelectorAll(".room-option");
-    options.forEach((opt) => {
+    // Room type selector
+    const roomOptions = this.querySelectorAll(".room-option");
+    roomOptions.forEach(opt => {
       opt.addEventListener("click", () => {
-        options.forEach(o => o.classList.remove("selected"));
+        roomOptions.forEach(o => o.classList.remove("selected"));
         opt.classList.add("selected");
         this.quoteData.roomType = opt.dataset.room;
+      });
+    });
+
+    // Multi-select kitchen styles
+    const styleOptions = this.querySelectorAll("#kitchenStyles .kitchen-option");
+    styleOptions.forEach(option => {
+      option.addEventListener("click", () => {
+        const style = option.dataset.style;
+        const isSelected = option.classList.contains("selected");
+        option.classList.toggle("selected");
+
+        if (!isSelected) {
+          this.quoteData.kitchen.style.push(style);
+        } else {
+          this.quoteData.kitchen.style = this.quoteData.kitchen.style.filter(s => s !== style);
+        }
+
+        console.log("🛠️ Selected styles:", this.quoteData.kitchen.style);
       });
     });
 
