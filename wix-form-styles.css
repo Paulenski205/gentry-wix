@@ -11,21 +11,21 @@
 
 /* Welcome screen layout */
 .welcome-page {
-  display: flex;
-  flex-direction: column;
+  display: flex !important;
+  flex-direction: column !important;
   height: 600px;
   overflow: hidden;
 }
 
 .image-banner {
   flex: 2;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   background-image: url('https://static.wixstatic.com/media/daaed2_ddd95b246f944d598ee05d08035961c2~mv2.png/v1/fill/w_1323,h_910,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/daaed2_ddd95b246f944d598ee05d08035961c2~mv2.png');
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-size: cover !important;
+  background-position: center !important;
+  position: relative !important;
 }
 
 .image-banner h1 {
@@ -39,9 +39,9 @@
 .welcome-bottom {
   flex: 1;
   background-color: rgb(107, 94, 78);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
   padding: 20px;
 }
 
@@ -56,7 +56,7 @@
   transition: background 0.2s ease;
 }
 
-/* Page 2 background */
+/* Page 2: Contact Info */
 #page2 {
   background-color: rgb(36, 35, 35);
   color: white;
@@ -89,7 +89,7 @@
   font-size: 16px;
 }
 
-/* Button layout */
+/* Navigation Buttons */
 .nav-buttons {
   display: flex;
   justify-content: space-between;
@@ -166,7 +166,6 @@
   text-align: center;
 }
 
-/* Substep containers */
 .kitchen-step {
   display: none;
 }
@@ -175,7 +174,7 @@
   display: block;
 }
 
-/* Gallery for kitchen options */
+/* Kitchen Style Selection Grid */
 .kitchen-gallery {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -211,7 +210,7 @@
   color: #333;
 }
 
-/* Dimensions inputs */
+/* Kitchen Dimension Inputs */
 .dimensions-group {
   display: flex;
   flex-direction: column;
@@ -236,7 +235,7 @@
   border-radius: 4px;
 }
 
-/* Notes textarea */
+/* Additional Notes Textarea */
 textarea {
   width: 100%;
   max-width: 500px;
