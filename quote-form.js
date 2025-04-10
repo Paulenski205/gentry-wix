@@ -1,3 +1,4 @@
+
 class QuoteForm extends HTMLElement {
   connectedCallback() {
     if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
@@ -11,6 +12,9 @@ class QuoteForm extends HTMLElement {
 
     this.innerHTML = `
       <div class="quote-form-container">
+
+        <!-- Reset Button -->
+        <button id="resetFormBtn" class="reset-button">Reset Form</button>
 
         <!-- Page 1: Welcome -->
         <div class="form-page welcome-page active" id="page1">
@@ -71,7 +75,7 @@ class QuoteForm extends HTMLElement {
           </div>
         </div>
 
-        <!-- Page 4: Kitchen Style Selection -->
+        <!-- Page 4: Kitchen Style -->
         <div class="form-page" id="page4">
           <h2>Kitchen Design: Step 1</h2>
           <div class="kitchen-step active" id="kitchenStep1">
@@ -116,16 +120,17 @@ class QuoteForm extends HTMLElement {
     this.showPage = (pageNum) => {
       const pages = this.querySelectorAll(".form-page");
       pages.forEach((pg, i) => {
-        pg.style.display = i === pageNum - 1 ? "block" : "none";
+        pg.classList.remove("active");
+        if (i === pageNum - 1) pg.classList.add("active");
       });
       this.currentPage = pageNum;
     };
 
-    // Navigation events
+    // Navigation
     this.querySelector("#beginButton").addEventListener("click", () => {
-      this.querySelector("#page1").remove(); // Remove welcome screen
+      this.querySelector("#page1").remove(); // remove welcome
       this.showPage(2);
-      this.querySelector("#prevPage2").style.display = "none"; // Hide previous on page 2
+      this.querySelector("#prevPage2").style.display = "none";
     });
 
     this.querySelector("#nextPage2").addEventListener("click", () => this.showPage(3));
@@ -145,7 +150,11 @@ class QuoteForm extends HTMLElement {
       alert("Next kitchen step coming soon...");
     });
 
-    // Room type selection
+    this.querySelector("#resetFormBtn").addEventListener("click", () => {
+      location.reload();
+    });
+
+    // Room selection
     const roomOptions = this.querySelectorAll(".room-option");
     roomOptions.forEach(opt => {
       opt.addEventListener("click", () => {
@@ -155,20 +164,18 @@ class QuoteForm extends HTMLElement {
       });
     });
 
-    // Multi-select kitchen styles
+    // Multi-style select
     const styleOptions = this.querySelectorAll("#kitchenStyles .kitchen-option");
     styleOptions.forEach(option => {
       option.addEventListener("click", () => {
         const style = option.dataset.style;
         const isSelected = option.classList.contains("selected");
         option.classList.toggle("selected");
-
         if (!isSelected) {
           this.quoteData.kitchen.style.push(style);
         } else {
           this.quoteData.kitchen.style = this.quoteData.kitchen.style.filter(s => s !== style);
         }
-
         console.log("🛠️ Selected styles:", this.quoteData.kitchen.style);
       });
     });
