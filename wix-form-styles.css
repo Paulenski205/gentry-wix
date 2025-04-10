@@ -212,3 +212,60 @@ overflow: hidden;
   color: #aaa;
   font-style: italic;
 }
+@media (max-width: 768px) {
+  .quote-form-container {
+    width: 95%;
+    height: auto;
+    margin: 20px auto;
+    box-shadow: none;
+  }
+
+  .form-body {
+    flex: unset;
+    height: auto;
+    overflow: visible;
+    padding: 20px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 16px;
+    flex: unset;
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .form-group {
+    flex: unset !important;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .form-group input,
+  .form-group select {
+    max-width: 100%;
+  }
+
+  .form-nav {
+    flex: unset;
+    padding: 16px;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .nav-button {
+    flex: 1;
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .reset-button {
+    position: static;
+    align-self: flex-end;
+  }
+}
