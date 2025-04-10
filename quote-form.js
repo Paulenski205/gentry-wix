@@ -1,10 +1,9 @@
-
 class QuoteForm extends HTMLElement {
   connectedCallback() {
     if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@3194a2eb412abd174d6ce134b57308a043ff89fc/wix-form-styles.css";
+      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@main/wix-form-styles.css";
       document.head.appendChild(link);
     }
 
@@ -126,13 +125,14 @@ class QuoteForm extends HTMLElement {
       this.currentPage = pageNum;
     };
 
-    // Navigation
+    // Begin → Page 2 (remove welcome)
     this.querySelector("#beginButton").addEventListener("click", () => {
-      this.querySelector("#page1").remove(); // remove welcome
+      this.querySelector("#page1").remove();
       this.showPage(2);
       this.querySelector("#prevPage2").style.display = "none";
     });
 
+    // Standard page navigation
     this.querySelector("#nextPage2").addEventListener("click", () => this.showPage(3));
     this.querySelector("#prevPage3").addEventListener("click", () => this.showPage(2));
     this.querySelector("#nextPage3").addEventListener("click", () => {
@@ -143,18 +143,18 @@ class QuoteForm extends HTMLElement {
         alert("Only Kitchen flow is available at this time.");
       }
     });
-
     this.querySelector("#prevPage4").addEventListener("click", () => this.showPage(3));
     this.querySelector("#nextPage4").addEventListener("click", () => {
       console.log("✅ Kitchen styles selected:", this.quoteData.kitchen.style);
       alert("Next kitchen step coming soon...");
     });
 
+    // Reset Form
     this.querySelector("#resetFormBtn").addEventListener("click", () => {
       location.reload();
     });
 
-    // Room selection
+    // Room Type Selector
     const roomOptions = this.querySelectorAll(".room-option");
     roomOptions.forEach(opt => {
       opt.addEventListener("click", () => {
@@ -164,7 +164,7 @@ class QuoteForm extends HTMLElement {
       });
     });
 
-    // Multi-style select
+    // Kitchen Style Multi-select
     const styleOptions = this.querySelectorAll("#kitchenStyles .kitchen-option");
     styleOptions.forEach(option => {
       option.addEventListener("click", () => {
