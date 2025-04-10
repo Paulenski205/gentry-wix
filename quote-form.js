@@ -1,18 +1,18 @@
 class QuoteForm extends HTMLElement {
   connectedCallback() {
-if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@c156b57ca9d836f02e9da068f206ae54fbf216bf/wix-form-styles.css";
-  document.head.appendChild(link);
-}
+    if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@main/wix-form-styles.css";
+      document.head.appendChild(link);
+    }
 
     this.quoteData = {};
 
     this.innerHTML = `
       <div class="quote-form-container">
 
-        <!-- Page 1 -->
+        <!-- Page 1: Welcome -->
         <div class="form-page welcome-page active" id="page1">
           <div class="image-banner"><h1>Your Dream Design</h1></div>
           <div class="welcome-bottom">
@@ -20,7 +20,7 @@ if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
           </div>
         </div>
 
-        <!-- Page 2 -->
+        <!-- Page 2: Contact Info -->
         <div class="form-page" id="page2">
           <h2 style="color: white;">Tell us about yourself</h2>
           <div class="form-group"><label>Customer Name*</label><input type="text" id="customerName" required></div>
@@ -44,7 +44,7 @@ if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
           </div>
         </div>
 
-        <!-- Page 3 -->
+        <!-- Page 3: Room Type -->
         <div class="form-page" id="page3">
           <h2>Select a Room</h2>
           <div class="image-selector-grid">
@@ -71,7 +71,7 @@ if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
           </div>
         </div>
 
-        <!-- Page 4: Kitchen Wizard -->
+        <!-- Page 4: Kitchen Style Selection -->
         <div class="form-page" id="page4">
           <h2>Kitchen Design: Step 1</h2>
           <div class="kitchen-step active" id="kitchenStep1">
@@ -121,9 +121,13 @@ if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
       this.currentPage = pageNum;
     };
 
-    // Navigation Events
-    this.querySelector("#beginButton").addEventListener("click", () => this.showPage(2));
-    this.querySelector("#prevPage2").addEventListener("click", () => this.showPage(1));
+    // Navigation events
+    this.querySelector("#beginButton").addEventListener("click", () => {
+      this.querySelector("#page1").remove(); // Remove welcome screen
+      this.showPage(2);
+      this.querySelector("#prevPage2").style.display = "none"; // Hide previous on page 2
+    });
+
     this.querySelector("#nextPage2").addEventListener("click", () => this.showPage(3));
     this.querySelector("#prevPage3").addEventListener("click", () => this.showPage(2));
     this.querySelector("#nextPage3").addEventListener("click", () => {
@@ -134,13 +138,14 @@ if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
         alert("Only Kitchen flow is available at this time.");
       }
     });
+
     this.querySelector("#prevPage4").addEventListener("click", () => this.showPage(3));
     this.querySelector("#nextPage4").addEventListener("click", () => {
       console.log("✅ Kitchen styles selected:", this.quoteData.kitchen.style);
       alert("Next kitchen step coming soon...");
     });
 
-    // Room type selector
+    // Room type selection
     const roomOptions = this.querySelectorAll(".room-option");
     roomOptions.forEach(opt => {
       opt.addEventListener("click", () => {
