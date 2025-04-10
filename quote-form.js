@@ -2,7 +2,7 @@ class QuoteForm extends HTMLElement {
   connectedCallback() {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@refs/heads/main/wix-form-styles.css";
+    link.href = "https://raw.githubusercontent.com/Paulenski205/gentry-wix/refs/heads/main/wix-form-styles.css";
     document.head.appendChild(link);
 
     this.quoteData = {};
