@@ -1,5 +1,4 @@
-
-/* Fixed container styling */
+/* Container styling */
 .quote-form-container {
   width: 960px;
   height: 720px;
@@ -25,7 +24,6 @@
   transform: translateX(100%);
   z-index: 0;
 }
-
 .form-page.active {
   opacity: 1;
   transform: translateX(0%);
@@ -42,4 +40,205 @@
   color: #666;
   border: none;
   cursor: pointer;
+}
+
+/* Welcome screen layout */
+.welcome-page {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100%;
+  overflow: hidden;
+}
+
+.image-banner {
+  flex: 2;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-image: url('https://static.wixstatic.com/media/daaed2_ddd95b246f944d598ee05d08035961c2~mv2.png/v1/fill/w_1323,h_910,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/daaed2_ddd95b246f944d598ee05d08035961c2~mv2.png');
+  background-size: cover !important;
+  background-position: center !important;
+  position: relative !important;
+}
+
+.image-banner h1 {
+  color: white;
+  font-size: 2.5rem;
+  margin: 0;
+  padding: 0 20px;
+  text-align: center;
+  text-shadow: 2px 2px black;
+}
+
+.welcome-bottom {
+  flex: 1;
+  background-color: rgb(107, 94, 78);
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 20px;
+}
+
+.begin-button {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  padding: 14px 28px;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* Page 2: Contact Info */
+#page2 {
+  background-color: rgb(36, 35, 35);
+  color: white;
+  padding: 40px;
+  display: none;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: white;
+  text-align: left;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px;
+  width: 100%;
+  max-width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+/* Navigation Buttons */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.nav-button {
+  background-color: #116DFF;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.nav-button:hover {
+  background-color: #0f5cd7;
+}
+
+/* Page 3: Room Selector */
+#page3 {
+  background-color: #f5f5f5;
+  padding: 40px;
+  display: none;
+  text-align: center;
+}
+
+.image-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 20px;
+  justify-items: center;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.room-option {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  max-width: 160px;
+}
+
+.room-option.selected {
+  border-color: #116DFF;
+}
+
+.room-option img {
+  width: 100%;
+  display: block;
+  height: auto;
+}
+
+.room-option label {
+  display: block;
+  margin-top: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Page 4: Kitchen Style Step */
+#page4 {
+  background-color: #fdfdfd;
+  padding: 40px;
+  display: none;
+  text-align: center;
+}
+
+.kitchen-step {
+  display: none;
+}
+
+.kitchen-step.active {
+  display: block;
+}
+
+.kitchen-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 20px;
+  justify-items: center;
+  margin-bottom: 30px;
+}
+
+.kitchen-option {
+  border: 2px solid transparent;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  max-width: 160px;
+}
+
+.kitchen-option.selected {
+  border-color: #116DFF;
+}
+
+.kitchen-option img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.kitchen-option label {
+  display: block;
+  margin-top: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
 }
