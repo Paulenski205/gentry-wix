@@ -212,20 +212,38 @@ overflow: hidden;
   color: #aaa;
   font-style: italic;
 }
+
 @media (max-width: 768px) {
   .quote-form-container {
     width: 95%;
-    height: auto;
+    height: auto; /* ✅ remove fixed height on mobile */
     margin: 20px auto;
     box-shadow: none;
+    display: flex;
+    flex-direction: column;
   }
 
   .form-body {
-    flex: unset;
     height: auto;
     overflow: visible;
     padding: 20px;
   }
+
+  .form-page {
+    position: static;
+    transform: none;
+    opacity: 1;
+    display: block;
+  }
+
+  .form-page.active {
+    position: static;
+    transform: none;
+    opacity: 1;
+    display: block;
+  }
+}
+
 
   .form-row {
     flex-direction: column;
