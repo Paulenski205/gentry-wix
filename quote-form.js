@@ -40,7 +40,7 @@ validateZipCode(value) {
 }
 
 
-// Update showPage method
+// Improved showPage method
 showPage = (pageNum) => {
     const pages = this.querySelectorAll(".form-page");
     pages.forEach((pg, i) => {
@@ -75,10 +75,13 @@ showPage = (pageNum) => {
     this.saveFormData();
 };
 
-  validatePhoneNumber(phone) {
-    const phoneRegex = /^[\d-().]+$/;
-    return phoneRegex.test(phone);
-  }
+validatePhoneNumber(phone) {
+  // First, remove all formatting
+  const cleaned = phone.replace(/\D/g, '');
+  
+  // Check if we have exactly 10 digits
+  return cleaned.length === 10;
+}
 
   validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -89,7 +92,7 @@ showPage = (pageNum) => {
     if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@5bc24f8653739757f688d98214ba9761ea6482f9/wix-form-styles.css";
+      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@61914f512e68177b322e0dad67b6d6c2fd6e1960/wix-form-styles.css";
       document.head.appendChild(link);
     }
 
@@ -238,14 +241,14 @@ renderStyleSelectionPage() {
   page4.innerHTML = `
     <div class="required-note">*Required</div>
     <h2>Select Your Style</h2>
-    <div class="style-grid">
-      ${styles.map(style => `
-        <div class="style-option ${this.quoteData.StyleSelection === style.name ? 'selected' : ''}" data-style="${style.name}">
-          <img src="${style.image}" alt="${style.name} style">
-          <label>${style.name}</label>
-        </div>
-      `).join('')}
-    </div>
+  <div class="style-grid">
+    ${styles.map(style => `
+      <div class="style-option ${this.quoteData.StyleSelection === style.name ? 'selected' : ''}" data-style="${style.name}">
+        <img src="${style.image}" alt="${style.name} style">
+        <label>${style.name}</label>
+      </div>
+    `).join('')}
+  </div>
     <div class="style-selection-required">Please select a style to continue</div>
   `;
 
@@ -303,7 +306,7 @@ renderDimensionsPage() {
     page5 = document.createElement('div');
     page5.id = 'page5';
     page5.className = 'form-page';
-    this.querySelector('.form-body').appendChild(page5);
+    this.querySelector('.form-body').appendChild(page5); // Append to form-body
   }
 
 // Different dimension fields based on room type
@@ -383,7 +386,7 @@ switch(this.quoteData.Room) {
       </div>
     `;
 }
-
+if (page5) {
   page5.innerHTML = `
     <div class="required-note">*Required</div>
     <h2>Room Dimensions</h2>
@@ -397,6 +400,9 @@ switch(this.quoteData.Room) {
       </div>
     </div>
   `;
+} else {
+    console.error("Error: page5 element not found.");
+  }
 
   // Add event listeners for dimension inputs
   const dimensionInputs = page5.querySelectorAll('input[type="number"]');
@@ -652,25 +658,34 @@ submitQuote() {
 }
 
 
-  initializeEventListeners() {
-    // Navigation buttons
-    this.querySelector("#beginBtn").onclick = () => this.showPage(2);
-    this.querySelector("#prevBtn").onclick = () => {
-  // If we're on the dimensions page and coming from Other Spaces
-  if (this.currentPage === 5 && this.quoteData.Room === 'Other Spaces') {
-    this.showPage(3); // Go back to room selection
-    return;
-  }
-  this.showPage(this.currentPage - 1);
-};
+initializeEventListeners() {
+// Begin button
+  this.querySelector("#beginBtn").onclick = () => this.showPage(2);
+
+
+  // Previous button
+  this.querySelector("#prevBtn").onclick = () => {
+    if (this.currentPage === 5 && this.quoteData.Room === 'Other Spaces') {
+      this.showPage(3); // Go back to room selection
+      return;
+    }
+    this.showPage(this.currentPage - 1);
+  };
+
+ // Next button
 this.querySelector("#nextBtn").onclick = () => {
-  switch(this.currentPage) {
-    case 2:
+  switch (this.currentPage) {
+    case 1: // Handle first page if necessary
+      // Add logic for first page if needed
+      this.showPage(2); // Go to Personal Information page
+      this.currentPage = 2; // Update currentPage
+      break;
+
+    case 2: // Personal Information
       if (!this.validateRequiredFields('page2')) {
         return;
       }
 
-      // Additional email and phone validation
       const emailField = this.querySelector("#Email");
       const phoneField = this.querySelector("#Phone");
 
@@ -685,35 +700,40 @@ this.querySelector("#nextBtn").onclick = () => {
         phoneField.classList.add('field-error');
         return;
       }
+      this.showPage(3); // Go to Room Selection page
+      this.currentPage = 3; // Update currentPage
       break;
 
-    case 3:
+    case 3: // Room Selection
       if (!this.quoteData.Room) {
         alert("Please select a room first.");
         return;
       }
-      
-      // If Other Spaces is selected, skip style selection and set as Custom
+
       if (this.quoteData.Room === 'Other Spaces') {
         this.quoteData.StyleSelection = 'Custom';
         this.renderDimensionsPage();
-        this.showPage(5); // Skip to dimensions page
-        return;
+        this.showPage(5); // Go directly to dimensions page
+        this.currentPage = 5; // Update currentPage
+      } else {
+        // For other rooms, go to the style selection page
+        this.renderStyleSelectionPage();
+        this.showPage(4); // Explicitly go to page 4
+        this.currentPage = 4; // Update currentPage
       }
-      
-      this.renderStyleSelectionPage();
-      this.showPage(this.currentPage + 1);
       break;
 
-    case 4:
-      if (!this.quoteData.StyleSelection) {
+    case 4: // Style Selection
+      if (!this.validateStyleSelection()) {
         alert("Please select a style first.");
         return;
       }
       this.renderDimensionsPage();
+      this.showPage(5); // Go to dimensions page
+      this.currentPage = 5; // Update currentPage
       break;
 
-    case 5:
+    case 5: // Dimensions
       if (!this.validateRequiredFields('page5')) {
         return;
       }
@@ -722,13 +742,14 @@ this.querySelector("#nextBtn").onclick = () => {
         return;
       }
       this.renderReviewPage();
+      this.showPage(6); // Go to review page
+      this.currentPage = 6; // Update currentPage
       break;
 
-    case 6:
+    case 6: // Review
       this.submitQuote();
-      return;
+      return; // Don't increment currentPage
   }
-  this.showPage(this.currentPage + 1);
 };
 
 
@@ -752,14 +773,14 @@ this.querySelector("#nextBtn").onclick = () => {
 const phoneInput = this.querySelector('#Phone');
 if (phoneInput) {
   phoneInput.addEventListener('input', (e) => {
-    // Get the raw input value and current cursor position
+    // Get the raw input value
     const unformatted = e.target.value.replace(/\D/g, '');
     const formatted = this.formatPhoneNumber(unformatted);
     
     // Update the input value
     e.target.value = formatted;
 
-    // Validate phone number
+    // Validate phone number - check for 10 digits
     if (unformatted.length === 10) {
       phoneInput.setCustomValidity('');
       this.quoteData.Phone = formatted;
@@ -788,11 +809,13 @@ if (zipInput) {
       e.target.value = e.target.value.slice(0, 5);
     }
 
-    // Validate zip code
+    // Validate zip code and remove error class if valid
     if (this.validateZipCode(e.target.value)) {
       zipInput.setCustomValidity('');
+      zipInput.classList.remove('field-error'); // Add this line
     } else {
       zipInput.setCustomValidity('Please enter a valid 5-digit zip code');
+      zipInput.classList.add('field-error'); // Add this line
     }
   });
 
@@ -803,7 +826,6 @@ if (zipInput) {
     }
   });
 }
-
 
 // In your initializeEventListeners method, add save calls:
 emailInput?.addEventListener("input", () => {
@@ -885,10 +907,10 @@ resetForm() {
   // Clear saved data
   this.clearSavedData();
   
-  this.showPage(1);
-}
-}
 
+this.showPage(1);
+}
+}
 
 
 customElements.define("quote-form", QuoteForm);
