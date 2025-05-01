@@ -1,10 +1,95 @@
-
 class QuoteForm extends HTMLElement {
+  constructor() {
+    super();
+    this.currentPage = 1;
+    this.quoteData = {};
+    this.totalPages = 7;
+  }
+
+// Phone number formatter
+formatPhoneNumber(value) {
+  // Remove all non-digits
+  const cleaned = value.replace(/\D/g, '');
+  
+  // Limit to 10 digits
+  const limited = cleaned.slice(0, 10);
+  
+  // Format the number based on length
+  if (limited.length === 0) {
+    return '';
+  }
+  
+  // Format parts
+  const areaCode = limited.slice(0, 3);
+  const middle = limited.slice(3, 6);
+  const last = limited.slice(6);
+  
+  if (limited.length <= 3) {
+    return '(' + limited;
+  }
+  if (limited.length <= 6) {
+    return '(' + areaCode + ') ' + middle;
+  }
+  return '(' + areaCode + ') ' + middle + '-' + last;
+}
+
+
+// Zip code validator
+validateZipCode(value) {
+  return /^\d{5}$/.test(value);
+}
+
+
+// Update showPage method
+showPage = (pageNum) => {
+    const pages = this.querySelectorAll(".form-page");
+    pages.forEach((pg, i) => {
+        pg.classList.toggle("active", i === pageNum - 1);
+    });
+    this.currentPage = pageNum;
+    
+    const beginButton = this.querySelector("#beginBtn");
+    const prevButton = this.querySelector("#prevBtn");
+    const nextButton = this.querySelector("#nextBtn");
+    
+    if (pageNum === 1) {
+        beginButton.style.display = "block";
+        prevButton.style.display = "none";
+        nextButton.style.display = "none";
+    } else {
+        beginButton.style.display = "none";
+        prevButton.style.display = "block";
+        nextButton.style.display = "block";
+        
+        // Change button text for review page
+        if (pageNum === 6) {
+            nextButton.textContent = "Submit";
+            nextButton.style.backgroundColor = "var(--success-color)";
+        } else {
+            nextButton.textContent = "Next";
+            nextButton.style.backgroundColor = "var(--primary-color)";
+        }
+    }
+
+    // Save form data when changing pages
+    this.saveFormData();
+};
+
+  validatePhoneNumber(phone) {
+    const phoneRegex = /^[\d-().]+$/;
+    return phoneRegex.test(phone);
+  }
+
+  validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
   connectedCallback() {
     if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@585b03fb933cec4ec6a415b8495c8e99219b831f/wix-form-styles.css";
+      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@5bc24f8653739757f688d98214ba9761ea6482f9/wix-form-styles.css";
       document.head.appendChild(link);
     }
 
@@ -12,148 +97,798 @@ class QuoteForm extends HTMLElement {
 
     this.innerHTML = `
       <div class="quote-form-container">
-        <!-- Top: form content -->
         <div class="form-body">
-          <!-- Page 1: Welcome -->
           <div class="form-page welcome-page active" id="page1">
             <div class="image-banner"><h1>Your Dream Design</h1></div>
           </div>
 
-          <!-- Page 2: Contact Info -->
           <div class="form-page" id="page2">
-<div class="required-note">*Required</div>
-
-            <h2 style="color: white;">Tell us about yourself</h2>
-
-            <div class="form-row">
-              <div class="form-group"><label>First Name*</label><input type="text" id="firstname" required></div>
-              <div class="form-group"><label>Last Name*</label><input type="text" id="lastname" required></div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group"><label>Address Line 1</label><input type="text" id="address1"></div>
-              <div class="form-group"><label>Address Line 2</label><input type="text" id="address2"></div>
-            </div>
-
-           <div class="form-row">
-  <div class="form-group flex-2"><label>City*</label><input type="text" id="city" required></div>
-  <div class="form-group"><label>State*</label>
-    <select id="state" required>
-  <option value="">Select State</option>
-  <option value="AL">Alabama</option>
-  <option value="AK">Alaska</option>
-  <option value="AZ">Arizona</option>
-  <option value="AR">Arkansas</option>
-  <option value="CA">California</option>
-  <option value="CO">Colorado</option>
-  <option value="CT">Connecticut</option>
-  <option value="DE">Delaware</option>
-  <option value="FL">Florida</option>
-  <option value="GA">Georgia</option>
-  <option value="HI">Hawaii</option>
-  <option value="ID">Idaho</option>
-  <option value="IL">Illinois</option>
-  <option value="IN">Indiana</option>
-  <option value="IA">Iowa</option>
-  <option value="KS">Kansas</option>
-  <option value="KY">Kentucky</option>
-  <option value="LA">Louisiana</option>
-  <option value="ME">Maine</option>
-  <option value="MD">Maryland</option>
-  <option value="MA">Massachusetts</option>
-  <option value="MI">Michigan</option>
-  <option value="MN">Minnesota</option>
-  <option value="MS">Mississippi</option>
-  <option value="MO">Missouri</option>
-  <option value="MT">Montana</option>
-  <option value="NE">Nebraska</option>
-  <option value="NV">Nevada</option>
-  <option value="NH">New Hampshire</option>
-  <option value="NJ">New Jersey</option>
-  <option value="NM">New Mexico</option>
-  <option value="NY">New York</option>
-  <option value="NC">North Carolina</option>
-  <option value="ND">North Dakota</option>
-  <option value="OH">Ohio</option>
-  <option value="OK">Oklahoma</option>
-  <option value="OR">Oregon</option>
-  <option value="PA">Pennsylvania</option>
-  <option value="RI">Rhode Island</option>
-  <option value="SC">South Carolina</option>
-  <option value="SD">South Dakota</option>
-  <option value="TN">Tennessee</option>
-  <option value="TX">Texas</option>
-  <option value="UT">Utah</option>
-  <option value="VT">Vermont</option>
-  <option value="VA">Virginia</option>
-  <option value="WA">Washington</option>
-  <option value="WV">West Virginia</option>
-  <option value="WI">Wisconsin</option>
-  <option value="WY">Wyoming</option>
+            <div class="required-note">*Required</div>
+            <h2>Tell us about yourself</h2>
+            <div class="form-content">
+              <div class="form-row">
+                <div class="form-group"><label for="FirstName">First Name</label><input type="text" id="FirstName" required placeholder="Required field"></div>
+                <div class="form-group"><label for="LastName">Last Name</label><input type="text" id="LastName" required placeholder="Required field"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label for="AddressLine1">Address Line 1</label><input type="text" id="AddressLine1"></div>
+                <div class="form-group"><label for="AddressLine2">Address Line 2</label><input type="text" id="AddressLine2"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group flex-2"><label for="City">City</label><input type="text" id="City" required placeholder="Required field"></div>
+                <div class="form-group"><label for="State">State</label>
+                  <select id="State" required>
+  <option value="" style="color: #999; font-style: italic;">Select State</option>
+  ${[
+    "AK","AL","AR","AZ","CA","CO","CT","DE","FL","GA","HI","IA","ID","IL","IN","KS","KY","LA",
+"MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK",
+"OR","PA","RI","SC","SD","TN","TX","UT","VA","VT","WA","WI","WV","WY"
+  ].map(code => `<option value="${code}">${code}</option>`).join("")}
 </select>
-  </div>
-  <div class="form-group"><label>Zip*</label><input type="text" id="zip" required></div>
+                </div>
+                <div class="form-group">
+  <label for="Zip">Zip*</label>
+  <input type="text" id="Zip" required placeholder="Required field" maxlength="5" inputmode="numeric" pattern="\d{5}">
 </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label for="Email">Email</label><input type="email" id="Email" required placeholder="Required field"></div>
+                <div class="form-group">
+  <label for="Phone">Phone Number*</label>
+  <input type="tel" id="Phone" required placeholder="Required field" inputmode="numeric">
+</div>
+              </div>
+            </div>
+          </div>
 
-            <div class="form-row">
-              <div class="form-group"><label>Email*</label><input type="email" id="email" required></div>
-              <div class="form-group"><label>Phone Number*</label><input type="tel" id="phone" required></div>
+          <div class="form-page" id="page3">
+            <h2 style="color: white;">Choose Space</h2>
+            <div class="room-grid">
+              <div class="room-option" data-room="Kitchens">
+                <img src="https://static.wixstatic.com/media/daaed2_dc05ac576e954186a9ca8cbe62dcc4fc~mv2.jpg" />
+                <label>Kitchens</label>
+              </div>
+              <div class="room-option" data-room="Bathrooms">
+                <img src="https://static.wixstatic.com/media/daaed2_7a414666570945fa986f26530dd12a1a~mv2.jpg" />
+                <label>Bathrooms</label>
+              </div>
+              <div class="room-option" data-room="Closets">
+                <img src="https://static.wixstatic.com/media/daaed2_58bc2717dd864729bd78624a059b2aeb~mv2.jpg" />
+                <label>Closets</label>
+              </div>
+              <div class="room-option" data-room="Other Spaces">
+                <img src="https://static.wixstatic.com/media/daaed2_3d8cac2b04ca4667a4689bb57c9e7525~mv2.jpg" />
+                <label>Other Spaces</label>
+                <input type="text" class="other-input" placeholder="Enter room name..." style="display: none;" />
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Bottom: nav bar -->
         <div class="form-nav">
-          <button id="resetFormBtn" class="reset-button">Reset Form</button>
-          <div class="nav-buttons">
-            <button id="prevBtn" class="nav-button">Previous</button>
-            <button id="nextBtn" class="nav-button">Next</button>
-            <button id="beginBtn" class="nav-button">Begin</button>
-          </div>
+  <button id="resetFormBtn" class="reset-button">Reset Form</button>
+  <div class="nav-buttons">
+    <button id="beginBtn" class="nav-button">Begin</button>
+    <button id="prevBtn" class="nav-button">Previous</button>
+    <button id="nextBtn" class="nav-button">Next</button>
+  </div>
+</div>
+    `;
+
+// Initial button setup
+    const beginButton = this.querySelector("#beginBtn");
+    const prevButton = this.querySelector("#prevBtn");
+    const nextButton = this.querySelector("#nextBtn");
+
+    // Set initial visibility
+    beginButton.style.display = "block";
+    prevButton.style.display = "none";
+    nextButton.style.display = "none";
+
+    this.initializeEventListeners();
+// Load saved data after form is initialized
+  this.loadFormData();
+  }
+
+renderStyleSelectionPage() {
+  let page4 = this.querySelector('#page4');
+  if (!page4) {
+    page4 = document.createElement('div');
+    page4.id = 'page4';
+    page4.className = 'form-page';
+    this.querySelector('.form-body').appendChild(page4);
+  }
+
+// Define styleOptions as a class property
+    this.styleOptions = {
+      Kitchens: [
+    { name: 'Modern', image: 'https://static.wixstatic.com/media/daaed2_b8744cc53bf3439d98919bb5cd2c7a97~mv2.jpg/v1/crop/x_361,y_0,w_1709,h_1663/fill/w_399,h_388,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Modern%20Kitchen%205_edited.jpg' },
+    { name: 'Traditional', image: 'https://static.wixstatic.com/media/daaed2_ed56a74ed08243e5a0005f9ff9953baa~mv2.jpg/v1/fill/w_399,h_388,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Traditional%20Kitchen%206.jpg' },
+    { name: 'Rustic', image: 'https://static.wixstatic.com/media/daaed2_46b96a9910a44b4f8eed71a300d35b4e~mv2.jpg/v1/fill/w_399,h_388,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Rustic%20Kitchen%202.jpg' },
+    { name: 'Transitional', image: 'https://static.wixstatic.com/media/daaed2_677d2a30dae34169ba4b44c46f5d6802~mv2.jpg/v1/fill/w_399,h_388,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Transitional%20Kitchen%201.jpg' },
+    { name: 'Industrial', image: 'https://static.wixstatic.com/media/daaed2_97ce2bf00677403885f93fd34b22c1c5~mv2.jpg/v1/crop/x_134,y_0,w_1645,h_1600/fill/w_399,h_388,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Industrial%20Kitchen%204_edited.jpg' },
+    { name: 'Scandinavian', image: 'https://static.wixstatic.com/media/daaed2_e71dc90fdc5245cc93fd0979c93d168c~mv2.jpg/v1/fill/w_399,h_388,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Scandinavian%20Kitchen%202.jpg' },
+    { name: 'Farmhouse', image: 'https://static.wixstatic.com/media/daaed2_e426bf3ec898443398bcfea2b46e2615~mv2.jpg/v1/fill/w_399,h_388,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Farmhouse%20Kitchen%203.jpg' },
+    { name: 'Custom', image: 'https://static.wixstatic.com/media/daaed2_e2d0afe9dc2e4428ac0736d0465cea7a~mv2.jpg/v1/fill/w_399,h_388,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/custom%20design.jpg' }
+  ],
+  Closets: [
+    { name: 'Sleek and Functional', image: 'https://static.wixstatic.com/media/daaed2_75ba10e1417241abb00a7b2e1c45b9b3~mv2.png/v1/crop/x_185,y_0,w_1710,h_1664/fill/w_241,h_234,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Closet%204%20-%20Inspirations.png' },
+    { name: 'Fresh Chic', image: 'https://static.wixstatic.com/media/daaed2_cd97690c689d44b786b469e25689e8f0~mv2.png/v1/fill/w_241,h_234,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Closet%203%20-%20Inspirations.png' },
+    { name: 'Modern Luxury', image: 'https://static.wixstatic.com/media/daaed2_389111ba18b6411c9b3d3526ac6518f3~mv2.png/v1/fill/w_241,h_234,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Closet%202%20-%20Inspirations.png' },
+    { name: 'Custom', image: 'https://static.wixstatic.com/media/daaed2_e2d0afe9dc2e4428ac0736d0465cea7a~mv2.jpg/v1/fill/w_399,h_388,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/custom%20design.jpg' }
+  ],
+  Bathrooms: [
+    { name: 'Country Serenity', image: 'https://static.wixstatic.com/media/daaed2_e2b8980aa2834f259f6e0b77bf5bbe97~mv2.png/v1/crop/x_185,y_0,w_1710,h_1664/fill/w_241,h_234,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Bathroom%202%20-%20Inspirations.png' },
+    { name: 'Opulent Luxury', image: 'https://static.wixstatic.com/media/daaed2_fada6352b27845cf806789e1c491008a~mv2.png/v1/fill/w_241,h_234,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Bathroom%203%20-%20Inspirations.png' },
+    { name: 'Timeless Grandeur', image: 'https://static.wixstatic.com/media/daaed2_c37579e0723b43358293c1cc2838acdd~mv2.png/v1/fill/w_241,h_234,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Bathroom%201%20-%20Inspirations.png' },
+    { name: 'Custom', image: 'https://static.wixstatic.com/media/daaed2_e2d0afe9dc2e4428ac0736d0465cea7a~mv2.jpg/v1/fill/w_399,h_388,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/custom%20design.jpg' }
+  ],
+  'Other Spaces': [
+    { name: 'Minimalist', image: 'https://static.wixstatic.com/media/daaed2_004c8db7043b415ab396db727ae336ba~mv2.jpg/v1/fill/w_180,h_161,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Office.jpg' },
+    { name: 'Functional', image: 'https://static.wixstatic.com/media/daaed2_004c8db7043b415ab396db727ae336ba~mv2.jpg/v1/fill/w_180,h_161,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Office.jpg' },
+    { name: 'Custom', image: 'https://static.wixstatic.com/media/daaed2_004c8db7043b415ab396db727ae336ba~mv2.jpg/v1/fill/w_180,h_161,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Office.jpg' }
+  ]
+  };
+
+  // Get styles for selected room using this.styleOptions
+  const selectedRoom = this.quoteData.Room;
+  const styles = this.styleOptions[selectedRoom] || [];
+
+  // Create the HTML content
+  page4.innerHTML = `
+    <div class="required-note">*Required</div>
+    <h2>Select Your Style</h2>
+    <div class="style-grid">
+      ${styles.map(style => `
+        <div class="style-option ${this.quoteData.StyleSelection === style.name ? 'selected' : ''}" data-style="${style.name}">
+          <img src="${style.image}" alt="${style.name} style">
+          <label>${style.name}</label>
+        </div>
+      `).join('')}
+    </div>
+    <div class="style-selection-required">Please select a style to continue</div>
+  `;
+
+  const styleGrid = page4.querySelector('.style-grid');
+  const styleElements = page4.querySelectorAll('.style-option');
+  const requiredMessage = page4.querySelector('.style-selection-required');
+
+  // Add click handlers
+  styleElements.forEach(element => {
+    element.addEventListener('click', () => {
+      styleElements.forEach(el => el.classList.remove('selected'));
+      element.classList.add('selected');
+      this.quoteData.StyleSelection = element.dataset.style;
+      styleGrid.classList.remove('field-error');
+      requiredMessage.classList.remove('show');
+      this.saveFormData();
+      console.log('Style selected:', this.quoteData.StyleSelection); // Debug line
+    });
+  });
+  // Move this inside the method where page4 is defined
+  if (this.quoteData.StyleSelection) {
+    const savedStyle = page4.querySelector(`[data-style="${this.quoteData.StyleSelection}"]`);
+    if (savedStyle) {
+      savedStyle.classList.add('selected');
+      styleGrid.classList.remove('field-error');
+      requiredMessage.classList.remove('show');
+    }
+  }
+}
+
+
+// Update the validation method
+validateStyleSelection() {
+  const styleGrid = this.querySelector('.style-grid');
+  const requiredMessage = this.querySelector('.style-selection-required');
+  
+  // Check both the stored data and visual selection
+  const hasSelection = this.quoteData.StyleSelection && 
+                      this.querySelector('.style-option.selected');
+  
+  if (!hasSelection) {
+    styleGrid.classList.add('field-error');
+    requiredMessage.classList.add('show');
+    return false;
+  }
+  
+  styleGrid.classList.remove('field-error');
+  requiredMessage.classList.remove('show');
+  return true;
+}
+
+renderDimensionsPage() {
+  let page5 = this.querySelector('#page5');
+  if (!page5) {
+    page5 = document.createElement('div');
+    page5.id = 'page5';
+    page5.className = 'form-page';
+    this.querySelector('.form-body').appendChild(page5);
+  }
+
+// Different dimension fields based on room type
+let dimensionFields = '';
+switch(this.quoteData.Room) {
+  case 'Kitchens':
+    dimensionFields = `
+      <div class="form-row dimensions-row">
+        <div class="form-group">
+          <label for="length">Kitchen Length (inches)*</label>
+          <input type="number" id="length" required min="1" step="0.1" placeholder="Required field">
+        </div>
+        <div class="form-group">
+          <label for="width">Kitchen Width (inches)*</label>
+          <input type="number" id="width" required min="1" step="0.1" placeholder="Required field">
+        </div>
+        <div class="form-group">
+          <label for="ceiling">Kitchen Height (inches)*</label>
+          <input type="number" id="ceiling" required min="1" step="0.1" placeholder="Required field">
         </div>
       </div>
     `;
+    break;
+  case 'Bathrooms':
+    dimensionFields = `
+      <div class="form-row dimensions-row">
+        <div class="form-group">
+          <label for="length">Bathroom Length (inches)*</label>
+          <input type="number" id="length" required min="1" step="0.1" placeholder="Required field">
+        </div>
+        <div class="form-group">
+          <label for="width">Bathroom Width (inches)*</label>
+          <input type="number" id="width" required min="1" step="0.1" placeholder="Required field">
+        </div>
+        <div class="form-group">
+          <label for="ceiling">Bathroom Height (inches)*</label>
+          <input type="number" id="ceiling" required min="1" step="0.1" placeholder="Required field">
+        </div>
+      </div>
+    `;
+    break;
+  case 'Closets':
+    dimensionFields = `
+      <div class="form-row dimensions-row">
+        <div class="form-group">
+          <label for="length">Closet Length (inches)*</label>
+          <input type="number" id="length" required min="1" step="0.1" placeholder="Required field">
+        </div>
+        <div class="form-group">
+          <label for="width">Closet Width (inches)*</label>
+          <input type="number" id="width" required min="1" step="0.1" placeholder="Required field">
+        </div>
+        <div class="form-group">
+          <label for="ceiling">Closet Height (inches)*</label>
+          <input type="number" id="ceiling" required min="1" step="0.1" placeholder="Required field">
+        </div>
+      </div>
+    `;
+    break;
+  default:
+    // For "Other Spaces", use the custom room name if available
+    const roomName = this.quoteData.customRoomName || 'Room';
+    dimensionFields = `
+      <div class="form-row dimensions-row">
+        <div class="form-group">
+          <label for="length">${roomName} Length (inches)*</label>
+          <input type="number" id="length" required min="1" step="0.1" placeholder="Required field">
+        </div>
+        <div class="form-group">
+          <label for="width">${roomName} Width (inches)*</label>
+          <input type="number" id="width" required min="1" step="0.1" placeholder="Required field">
+        </div>
+        <div class="form-group">
+          <label for="ceiling">${roomName} Height (inches)*</label>
+          <input type="number" id="ceiling" required min="1" step="0.1" placeholder="Required field">
+        </div>
+      </div>
+    `;
+}
 
-    this.currentPage = 1;
-    const totalPages = 2;
+  page5.innerHTML = `
+    <div class="required-note">*Required</div>
+    <h2>Room Dimensions</h2>
+    <div class="form-content">
+      ${dimensionFields}
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="additional-notes">Additional Notes (optional)</label>
+          <textarea id="additional-notes" rows="4"></textarea>
+        </div>
+      </div>
+    </div>
+  `;
 
-    this.showPage = (pageNum) => {
-      const pages = this.querySelectorAll(".form-page");
-      pages.forEach((pg, i) => {
-        pg.classList.remove("active");
-        if (i === pageNum - 1) pg.classList.add("active");
+  // Add event listeners for dimension inputs
+  const dimensionInputs = page5.querySelectorAll('input[type="number"]');
+  dimensionInputs.forEach(input => {
+    // Set initial value if it exists in quoteData
+    if (this.quoteData.dimensions && this.quoteData.dimensions[input.id]) {
+      input.value = this.quoteData.dimensions[input.id];
+    }
+
+    input.addEventListener('input', () => {
+      if (!this.quoteData.dimensions) {
+        this.quoteData.dimensions = {};
+      }
+      this.quoteData.dimensions[input.id] = parseFloat(input.value);
+      this.saveFormData(); // Save after each change
+    });
+  });
+
+  // Add event listener for additional notes
+  const notesInput = page5.querySelector('#additional-notes');
+  if (this.quoteData.additionalNotes) {
+    notesInput.value = this.quoteData.additionalNotes;
+  }
+  
+  notesInput.addEventListener('input', () => {
+    this.quoteData.additionalNotes = notesInput.value;
+    this.saveFormData(); // Save after each change
+  });
+}
+
+validateRequiredFields(pageId) {
+  const inputs = this.querySelectorAll(`#${pageId} [required]`);
+  let isValid = true;
+  
+  inputs.forEach(input => {
+    if (!input.value.trim()) {
+      input.classList.add('field-error');
+      isValid = false;
+    } else {
+      input.classList.remove('field-error');
+    }
+  });
+
+  if (!isValid) {
+    alert("Please fill out all required fields marked with *");
+  }
+
+  return isValid;
+}
+
+renderReviewPage() {
+  let page6 = this.querySelector('#page6');
+  if (!page6) {
+    page6 = document.createElement('div');
+    page6.id = 'page6';
+    page6.className = 'form-page';
+    this.querySelector('.form-body').appendChild(page6);
+  }
+
+  // Format dimensions for display
+  const dimensions = this.quoteData.dimensions || {};
+const dimensionsHtml = Object.entries(dimensions)
+  .map(([key, value]) => `
+    <div class="review-item">
+      <span class="review-label">${key.charAt(0).toUpperCase() + key.slice(1)}</span>
+      <span class="review-value">${value} inches</span>
+    </div>
+  `).join('');
+
+// Update the review page HTML structure
+// Update the renderReviewPage HTML structure
+page6.innerHTML = `
+  <h2>Review Your Information</h2>
+  <div class="form-content review-content">
+    <div class="review-sections-grid">
+      <div class="review-section">
+        <h3>Personal Information</h3>
+        <div class="review-grid personal-info-grid">
+          <div class="review-item">
+            <span class="review-label">Name</span>
+            <span class="review-value">${this.querySelector('#FirstName')?.value || ''} ${this.querySelector('#LastName')?.value || ''}</span>
+          </div>
+          <div class="review-item">
+            <span class="review-label">Email</span>
+            <span class="review-value">${this.querySelector('#Email')?.value || ''}</span>
+          </div>
+          <div class="review-item">
+            <span class="review-label">Phone</span>
+            <span class="review-value">${this.querySelector('#Phone')?.value || ''}</span>
+          </div>
+          <div class="review-item">
+            <span class="review-label">Address</span>
+            <span class="review-value">
+              ${this.querySelector('#AddressLine1')?.value || ''}<br>
+              ${this.querySelector('#AddressLine2')?.value ? this.querySelector('#AddressLine2').value + '<br>' : ''}
+              ${this.querySelector('#City')?.value || ''}, ${this.querySelector('#State')?.value || ''} ${this.querySelector('#Zip')?.value || ''}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-section">
+        <h3>Project Details</h3>
+        <div class="review-grid project-details-grid">
+          <div class="review-item">
+            <span class="review-label">Room Type</span>
+            <span class="review-value">${this.quoteData.Room || ''}</span>
+          </div>
+          <div class="review-item">
+            <span class="review-label">Style Selection</span>
+            <span class="review-value">${this.quoteData.StyleSelection || ''}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-section">
+        <h3>Room Dimensions</h3>
+        <div class="review-grid dimensions-grid">
+          ${dimensionsHtml}
+        </div>
+      </div>
+
+      ${this.quoteData.additionalNotes ? `
+        <div class="review-section">
+          <h3>Additional Notes</h3>
+          <div class="review-item">
+            <span class="review-value">${this.quoteData.additionalNotes}</span>
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  </div>
+`;
+}
+
+// Save form data to localStorage
+saveFormData() {
+  const formData = {
+    personalInfo: {
+      firstName: this.querySelector('#FirstName')?.value,
+      lastName: this.querySelector('#LastName')?.value,
+      addressLine1: this.querySelector('#AddressLine1')?.value,
+      addressLine2: this.querySelector('#AddressLine2')?.value,
+      city: this.querySelector('#City')?.value,
+      state: this.querySelector('#State')?.value,
+      zip: this.querySelector('#Zip')?.value,
+      email: this.querySelector('#Email')?.value,
+      phone: this.querySelector('#Phone')?.value
+    },
+    quoteData: this.quoteData
+  };
+  
+  localStorage.setItem('formData', JSON.stringify(formData));
+}
+
+// Load form data from localStorage
+loadFormData() {
+  const savedData = localStorage.getItem('formData');
+  if (savedData) {
+    const formData = JSON.parse(savedData);
+    
+    // Restore personal information
+    if (formData.personalInfo) {
+      this.querySelector('#FirstName').value = formData.personalInfo.firstName || '';
+      this.querySelector('#LastName').value = formData.personalInfo.lastName || '';
+      this.querySelector('#AddressLine1').value = formData.personalInfo.addressLine1 || '';
+      this.querySelector('#AddressLine2').value = formData.personalInfo.addressLine2 || '';
+      this.querySelector('#City').value = formData.personalInfo.city || '';
+      this.querySelector('#State').value = formData.personalInfo.state || '';
+      this.querySelector('#Zip').value = formData.personalInfo.zip || '';
+      this.querySelector('#Email').value = formData.personalInfo.email || '';
+      this.querySelector('#Phone').value = formData.personalInfo.phone || '';
+    }
+    
+    // Restore quote data
+    if (formData.quoteData) {
+      this.quoteData = formData.quoteData;
+      
+      // Restore room selection
+      if (this.quoteData.Room) {
+        const roomOption = this.querySelector(`.room-option[data-room="${this.quoteData.Room}"]`);
+        if (roomOption) {
+          roomOption.classList.add('selected');
+        }
+      }
+      
+}
+      
+
+
+// Restore dimensions
+      if (this.quoteData.dimensions) {
+        const dimensionsPage = this.querySelector('#page5');
+        if (dimensionsPage) {
+          const dimensionInputs = dimensionsPage.querySelectorAll('input[type="number"]');
+          dimensionInputs.forEach(input => {
+            if (this.quoteData.dimensions[input.id]) {
+              input.value = this.quoteData.dimensions[input.id];
+            }
+          });
+        }
+
+        // Restore additional notes
+        if (this.quoteData.additionalNotes) {
+          const notesInput = dimensionsPage?.querySelector('#additional-notes');
+          if (notesInput) {
+            notesInput.value = this.quoteData.additionalNotes;
+          }
+        }
+      }
+    }
+  
+}
+
+// Clear saved form data
+clearSavedData() {
+  localStorage.removeItem('formData');
+}
+
+
+submitQuote() {
+  // Collect all form data
+  const formData = {
+    personalInfo: {
+      firstName: this.querySelector('#FirstName').value,
+      lastName: this.querySelector('#LastName').value,
+      email: this.querySelector('#Email').value,
+      phone: this.querySelector('#Phone').value,
+      address: {
+        line1: this.querySelector('#AddressLine1').value,
+        line2: this.querySelector('#AddressLine2').value,
+        city: this.querySelector('#City').value,
+        state: this.querySelector('#State').value,
+        zip: this.querySelector('#Zip').value
+      }
+    },
+    projectDetails: {
+      roomType: this.quoteData.Room,
+      style: this.quoteData.StyleSelection,
+      dimensions: this.quoteData.dimensions,
+      additionalNotes: this.quoteData.additionalNotes
+    }
+  };
+
+  // Here you would typically send this data to your server
+  console.log('Submitting quote:', formData);
+  
+  // Show success message
+  alert('Thank you for your submission! We will contact you shortly.');
+  
+  // Reset the form
+  this.resetForm();
+}
+
+
+  initializeEventListeners() {
+    // Navigation buttons
+    this.querySelector("#beginBtn").onclick = () => this.showPage(2);
+    this.querySelector("#prevBtn").onclick = () => {
+  // If we're on the dimensions page and coming from Other Spaces
+  if (this.currentPage === 5 && this.quoteData.Room === 'Other Spaces') {
+    this.showPage(3); // Go back to room selection
+    return;
+  }
+  this.showPage(this.currentPage - 1);
+};
+this.querySelector("#nextBtn").onclick = () => {
+  switch(this.currentPage) {
+    case 2:
+      if (!this.validateRequiredFields('page2')) {
+        return;
+      }
+
+      // Additional email and phone validation
+      const emailField = this.querySelector("#Email");
+      const phoneField = this.querySelector("#Phone");
+
+      if (!this.validateEmail(emailField.value)) {
+        alert("Please enter a valid email address");
+        emailField.classList.add('field-error');
+        return;
+      }
+
+      if (!this.validatePhoneNumber(phoneField.value)) {
+        alert("Please enter a valid phone number");
+        phoneField.classList.add('field-error');
+        return;
+      }
+      break;
+
+    case 3:
+      if (!this.quoteData.Room) {
+        alert("Please select a room first.");
+        return;
+      }
+      
+      // If Other Spaces is selected, skip style selection and set as Custom
+      if (this.quoteData.Room === 'Other Spaces') {
+        this.quoteData.StyleSelection = 'Custom';
+        this.renderDimensionsPage();
+        this.showPage(5); // Skip to dimensions page
+        return;
+      }
+      
+      this.renderStyleSelectionPage();
+      this.showPage(this.currentPage + 1);
+      break;
+
+    case 4:
+      if (!this.quoteData.StyleSelection) {
+        alert("Please select a style first.");
+        return;
+      }
+      this.renderDimensionsPage();
+      break;
+
+    case 5:
+      if (!this.validateRequiredFields('page5')) {
+        return;
+      }
+      if (!this.collectDimensions()) {
+        alert("Please enter valid dimensions.");
+        return;
+      }
+      this.renderReviewPage();
+      break;
+
+    case 6:
+      this.submitQuote();
+      return;
+  }
+  this.showPage(this.currentPage + 1);
+};
+
+
+// Add input event listeners for required fields
+    const requiredInputs = this.querySelectorAll('[required]');
+    requiredInputs.forEach(input => {
+      input.addEventListener('input', () => {
+        if (input.value.trim()) {
+          input.classList.remove('field-error');
+        } else {
+          input.classList.add('field-error');
+        }
       });
+    });
 
-      const beginBtn = this.querySelector("#beginBtn");
-      const prevBtn = this.querySelector("#prevBtn");
-      const nextBtn = this.querySelector("#nextBtn");
+// Form field validation
+    const emailInput = this.querySelector("#Email");
+    // In your connectedCallback method, update or add these event listeners:
 
-      beginBtn.style.display = pageNum === 1 ? "inline-block" : "none";
-      prevBtn.style.display = pageNum > 1 ? "inline-block" : "none";
-      nextBtn.style.display = pageNum > 1 ? "inline-block" : "none";
+// Phone number formatting
+const phoneInput = this.querySelector('#Phone');
+if (phoneInput) {
+  phoneInput.addEventListener('input', (e) => {
+    // Get the raw input value and current cursor position
+    const unformatted = e.target.value.replace(/\D/g, '');
+    const formatted = this.formatPhoneNumber(unformatted);
+    
+    // Update the input value
+    e.target.value = formatted;
 
-      this.currentPage = pageNum;
+    // Validate phone number
+    if (unformatted.length === 10) {
+      phoneInput.setCustomValidity('');
+      this.quoteData.Phone = formatted;
+    } else {
+      phoneInput.setCustomValidity('Please enter a valid 10-digit phone number');
+    }
+  });
+
+  // Prevent non-numeric input
+  phoneInput.addEventListener('keypress', (e) => {
+    if (!/\d/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete') {
+      e.preventDefault();
+    }
+  });
+}
+
+// Zip code validation
+const zipInput = this.querySelector('#Zip');
+if (zipInput) {
+  zipInput.addEventListener('input', (e) => {
+    // Remove non-numeric characters
+    e.target.value = e.target.value.replace(/\D/g, '');
+    
+    // Limit to 5 digits
+    if (e.target.value.length > 5) {
+      e.target.value = e.target.value.slice(0, 5);
+    }
+
+    // Validate zip code
+    if (this.validateZipCode(e.target.value)) {
+      zipInput.setCustomValidity('');
+    } else {
+      zipInput.setCustomValidity('Please enter a valid 5-digit zip code');
+    }
+  });
+
+  // Prevent non-numeric input
+  zipInput.addEventListener('keypress', (e) => {
+    if (!/\d/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete') {
+      e.preventDefault();
+    }
+  });
+}
+
+
+// In your initializeEventListeners method, add save calls:
+emailInput?.addEventListener("input", () => {
+  const email = emailInput.value;
+  emailInput.setCustomValidity(
+    this.validateEmail(email) ? "" : "Please enter a valid email address"
+  );
+  if (this.validateEmail(email)) {
+    this.quoteData.Email = email;
+    this.saveFormData();
+  }
+});
+
+phoneInput?.addEventListener("input", () => {
+  const phone = phoneInput.value;
+  if (this.validatePhoneNumber(phone)) {
+    phoneInput.setCustomValidity("");
+    this.quoteData.Phone = phone;
+    this.saveFormData();
+  } else {
+    phoneInput.setCustomValidity("Please enter a valid phone number");
+  }
+});
+
+    // Reset form button
+    this.querySelector("#resetFormBtn").onclick = () => {
+      if (confirm("Are you sure you want to reset the form? All entered data will be lost.")) {
+        this.resetForm();
+      }
     };
 
-    this.querySelector("#beginBtn").addEventListener("click", () => this.showPage(2));
-    this.querySelector("#prevBtn").addEventListener("click", () => this.showPage(this.currentPage - 1));
-    this.querySelector("#nextBtn").addEventListener("click", () => {
-      if (this.currentPage < totalPages) {
-        this.showPage(this.currentPage + 1);
-      } else {
-        alert("Page 3 coming soon...");
-      }
+    // Room selection
+    const roomOptions = this.querySelectorAll(".room-option");
+    roomOptions.forEach(option => {
+      option.onclick = () => {
+  roomOptions.forEach(o => o.classList.remove("selected"));
+  option.classList.add("selected");
+  this.quoteData.Room = option.dataset.room;
+  this.saveFormData();
+};
     });
 
-    this.querySelector("#resetFormBtn").addEventListener("click", () => {
-      if (confirm("Are you sure you want to reset the quote form?")) {
-        this.innerHTML = "";
-        this.connectedCallback();
-      }
-    });
-
-    this.showPage(1);
   }
+
+// Also add this helper method to collect dimensions
+collectDimensions() {
+  const dimensions = {};
+  const inputs = this.querySelectorAll('#page5 input[type="number"]');
+  let isValid = true;
+
+  inputs.forEach(input => {
+    if (!input.value || input.value <= 0) {
+      isValid = false;
+    } else {
+      dimensions[input.id] = parseFloat(input.value);
+    }
+  });
+
+  if (isValid) {
+    this.quoteData.dimensions = dimensions;
+    this.saveFormData(); // Save after collecting dimensions
+    return true;
+  }
+  return false;
 }
+
+// Update resetForm method
+resetForm() {
+  this.quoteData = {};
+  const inputs = this.querySelectorAll('input, select');
+  inputs.forEach(input => {
+    input.value = '';
+    input.setCustomValidity('');
+  });
+
+  const selections = this.querySelectorAll('.room-option.selected, .style-option.selected');
+  selections.forEach(el => el.classList.remove("selected"));
+  
+  // Clear saved data
+  this.clearSavedData();
+  
+  this.showPage(1);
+}
+}
+
+
 
 customElements.define("quote-form", QuoteForm);
