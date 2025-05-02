@@ -1,10 +1,20 @@
+
 class QuoteForm extends HTMLElement {
-  constructor() {
-    super();
-    this.currentPage = 1;
-    this.quoteData = {};
-    this.totalPages = 7;
-  }
+    constructor() {
+        super();
+        this.currentPage = 1;
+        this.quoteData = {};
+        this.totalPages = 7;
+
+        // Add message handler
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'success') {
+                this.showPage(7); // Show thank you page
+            } else if (event.data.type === 'error') {
+                this.showPage(1); // Go back to first page
+            }
+        });
+    }
 
 // Phone number formatter
 formatPhoneNumber(value) {
