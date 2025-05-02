@@ -651,6 +651,7 @@ clearSavedData() {
 
 async submitQuote() {
   // Collect all form data
+try {
   const formData = {
     personalInfo: {
       firstName: this.querySelector('#FirstName').value,
@@ -672,22 +673,25 @@ async submitQuote() {
       additionalNotes: this.quoteData.additionalNotes
     }
   };
+ console.log('Preparing to submit:', formData);
 
   // Dispatch the custom event
-  const event = new CustomEvent('submitQuote', {
-    detail: formData,
-    bubbles: true,
-    composed: true
-  });
+    const event = new CustomEvent('submitQuote', {
+      detail: formData,
+      bubbles: true,
+      composed: true
+    });
   
-  try {
     this.dispatchEvent(event);
+    
+    // Wait a moment to ensure the event is processed
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     // Show thank you page
     this.showPage(7);
-    // Clear the form data
-    this.clearSavedData();
+    
   } catch (error) {
-    console.error('Submission error:', error);
+    console.error('Form submission error:', error);
     alert('There was an error submitting your form. Please try again.');
   }
 }
