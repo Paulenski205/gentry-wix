@@ -96,7 +96,7 @@ validatePhoneNumber(phone) {
     if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@6483919b45d590ec99ba78bc9ff4db91201b6719/wix-form-styles.css";
+      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@7ea96f557a8b219121cb0afcf6d9f37ba754c883/wix-form-styles.css";
       document.head.appendChild(link);
     }
 
@@ -190,6 +190,11 @@ validatePhoneNumber(phone) {
     </div>
   </div>
     `;
+
+  // Add page unload listener
+  window.addEventListener('beforeunload', () => {
+    this.clearSavedData();
+  });
 
 // Initial button setup
     const beginButton = this.querySelector("#beginBtn");
@@ -928,13 +933,18 @@ collectDimensions() {
   return false;
 }
 
-// Update resetForm method
+clearSavedData() {
+  localStorage.removeItem('formData');
+  sessionStorage.clear(); // Clear any session storage as well
+}
+
 resetForm() {
   this.quoteData = {};
-  const inputs = this.querySelectorAll('input, select');
+  const inputs = this.querySelectorAll('input, select, textarea');
   inputs.forEach(input => {
     input.value = '';
     input.setCustomValidity('');
+    input.classList.remove('field-error');
   });
 
   const selections = this.querySelectorAll('.room-option.selected, .style-option.selected');
@@ -943,8 +953,8 @@ resetForm() {
   // Clear saved data
   this.clearSavedData();
   
-
-this.showPage(1);
+  // Return to first page
+  this.showPage(1);
 }
 }
 
