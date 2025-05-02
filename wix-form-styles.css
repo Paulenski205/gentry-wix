@@ -773,11 +773,15 @@ button:focus {
   background-color: var(--background-dark);
   color: var(--text-light);
   padding: 40px;
+  height: 100%;
 }
 
 .thank-you-content {
   max-width: 600px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .thank-you-content h2 {
@@ -792,14 +796,28 @@ button:focus {
   color: var(--text-light);
 }
 
+/* Remove default form-nav styles for thank you page */
 .thank-you-nav {
   margin-top: 40px;
+  background: none;
+  box-shadow: none;
+  padding: 0;
+  width: auto;
 }
 
 #startOverBtn {
   display: block !important;
   background-color: var(--primary-color);
   margin: 0 auto;
+  min-width: 200px; /* Set a minimum width for the button */
+}
+
+/* Override any inherited form-nav styles */
+#page7 .form-nav {
+  background: none;
+  box-shadow: none;
+  padding: 0;
+  position: static;
 }
 
 
