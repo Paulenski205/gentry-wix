@@ -51,17 +51,22 @@ showPage = (pageNum) => {
     const beginButton = this.querySelector("#beginBtn");
     const prevButton = this.querySelector("#prevBtn");
     const nextButton = this.querySelector("#nextBtn");
+    const startOverButton = this.querySelector("#startOverBtn");
     
     if (pageNum === 1) {
         beginButton.style.display = "block";
         prevButton.style.display = "none";
         nextButton.style.display = "none";
+    } else if (pageNum === 7) { // Thank you page
+        beginButton.style.display = "none";
+        prevButton.style.display = "none";
+        nextButton.style.display = "none";
+        startOverButton.style.display = "block";
     } else {
         beginButton.style.display = "none";
         prevButton.style.display = "block";
         nextButton.style.display = "block";
         
-        // Change button text for review page
         if (pageNum === 6) {
             nextButton.textContent = "Submit";
             nextButton.style.backgroundColor = "var(--success-color)";
@@ -71,7 +76,6 @@ showPage = (pageNum) => {
         }
     }
 
-    // Save form data when changing pages
     this.saveFormData();
 };
 
@@ -92,7 +96,7 @@ validatePhoneNumber(phone) {
     if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@5cd0efa9a795e74544fca57075e70d05e691218e/wix-form-styles.css";
+      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@6483919b45d590ec99ba78bc9ff4db91201b6719/wix-form-styles.css";
       document.head.appendChild(link);
     }
 
@@ -176,6 +180,15 @@ validatePhoneNumber(phone) {
     <button id="nextBtn" class="nav-button">Next</button>
   </div>
 </div>
+  <div class="form-page" id="page7">
+    <div class="thank-you-content">
+      <h2>Thank You!</h2>
+      <p>Your submission has been received. We will contact you shortly.</p>
+      <div class="form-nav thank-you-nav">
+        <button id="startOverBtn" class="nav-button">Start Over</button>
+      </div>
+    </div>
+  </div>
     `;
 
 // Initial button setup
@@ -631,7 +644,7 @@ clearSavedData() {
 }
 
 
-submitQuote() {
+async submitQuote() {
   // Collect all form data
   const formData = {
     personalInfo: {
@@ -661,14 +674,18 @@ submitQuote() {
     bubbles: true,
     composed: true
   });
-  this.dispatchEvent(event);
-
-  // Show success message only after successful submission from Velo
-  // Remove or comment out these lines:
-  // alert('Thank you for your submission! We will contact you shortly.');
-  // this.resetForm();
+  
+  try {
+    this.dispatchEvent(event);
+    // Show thank you page
+    this.showPage(7);
+    // Clear the form data
+    this.clearSavedData();
+  } catch (error) {
+    console.error('Submission error:', error);
+    alert('There was an error submitting your form. Please try again.');
+  }
 }
-
 
 initializeEventListeners() {
 // Begin button
@@ -880,6 +897,12 @@ phoneInput?.addEventListener("input", () => {
   this.saveFormData();
 };
     });
+
+  // Start Over button
+  this.querySelector("#startOverBtn").onclick = () => {
+    this.resetForm();
+    this.showPage(1);
+  };
 
   }
 
