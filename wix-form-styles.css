@@ -619,7 +619,6 @@ button:focus {
   padding: 20px;
   margin: 0;
   z-index: 10;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 #page6 .review-content {
@@ -627,7 +626,8 @@ button:focus {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: 20px;
-  height: calc(100% - 60px); /* Subtract header height */
+  padding-bottom: 100px; /* Add extra padding at bottom */
+  height: calc(100% - 60px);
 }
 
 #page6 .review-sections-grid {
@@ -940,17 +940,19 @@ button:focus {
   }
 
   /* Important: This is the main scrollable container */
-  #page6 .review-content {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 20px;
-    height: calc(100vh - 120px); /* Subtract header and nav heights */
-    padding-bottom: calc(100px + env(safe-area-inset-bottom));
-  }
+#page6 .review-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px;
+  height: calc(100vh - 180px); /* Increased subtraction to account for header, nav, and safe area */
+  padding-bottom: calc(140px + env(safe-area-inset-bottom));
+  padding-bottom: calc(140px + constant(safe-area-inset-bottom)); /* iOS 11.0 fallback */
+}
 
   .review-sections-grid {
     padding-bottom: 80px; /* Add space at the bottom */
+	margin-bottom: 80px;
   }
   
   /* Android-specific adjustments */
@@ -1082,37 +1084,6 @@ button:focus {
     padding-bottom: 100px; /* Reduced padding */
   }
 
-  /* Navigation */
-  .form-nav {
-    /* ... existing form-nav styles ... */
-  }
-
-  .nav-buttons {
-    /* ... existing nav-buttons styles ... */
-  }
-
-  .nav-button {
-    /* ... existing nav-button styles ... */
-  }
-
-  .reset-button {
-    /* ... existing reset-button styles ... */
-  }
-
-  /* Content spacing */
-  .form-content {
-    margin-bottom: 100px; /* Reduced margin */
-  }
-
-  /* Review page content */
-  .review-content {
-    /* ... existing review-content styles ... */
-  }
-
-  /* Dimensions row specific styling */
-  .dimensions-row {
-    /* ... existing dimensions-row styles ... */
-  }
 
   /* Ensure page5 (dimensions page) has proper background */
   #page5 {
@@ -1232,7 +1203,7 @@ button:focus {
   
   #page6 .review-content {
     padding: 15px;
-    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+    padding-bottom: calc(140px + env(safe-area-inset-bottom));
   }
 
   /* Navigation - Stacked buttons */
