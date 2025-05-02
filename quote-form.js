@@ -650,51 +650,48 @@ clearSavedData() {
 
 
 async submitQuote() {
-  // Collect all form data
-try {
-  const formData = {
-    personalInfo: {
-      firstName: this.querySelector('#FirstName').value,
-      lastName: this.querySelector('#LastName').value,
-      email: this.querySelector('#Email').value,
-      phone: this.querySelector('#Phone').value,
-      address: {
-        line1: this.querySelector('#AddressLine1').value,
-        line2: this.querySelector('#AddressLine2').value,
-        city: this.querySelector('#City').value,
-        state: this.querySelector('#State').value,
-        zip: this.querySelector('#Zip').value
-      }
-    },
-    projectDetails: {
-      roomType: this.quoteData.Room,
-      style: this.quoteData.StyleSelection,
-      dimensions: this.quoteData.dimensions,
-      additionalNotes: this.quoteData.additionalNotes
-    }
-  };
- console.log('Preparing to submit:', formData);
+    try {
+        const formData = {
+            personalInfo: {
+                firstName: this.querySelector('#FirstName').value,
+                lastName: this.querySelector('#LastName').value,
+                email: this.querySelector('#Email').value,
+                phone: this.querySelector('#Phone').value,
+                address: {
+                    line1: this.querySelector('#AddressLine1').value,
+                    line2: this.querySelector('#AddressLine2').value,
+                    city: this.querySelector('#City').value,
+                    state: this.querySelector('#State').value,
+                    zip: this.querySelector('#Zip').value
+                }
+            },
+            projectDetails: {
+                roomType: this.quoteData.Room,
+                style: this.quoteData.StyleSelection,
+                dimensions: this.quoteData.dimensions,
+                additionalNotes: this.quoteData.additionalNotes
+            }
+        };
 
-  // Dispatch the custom event
-    const event = new CustomEvent('submitQuote', {
-      detail: formData,
-      bubbles: true,
-      composed: true
-    });
-  
-    this.dispatchEvent(event);
-    
-    // Wait a moment to ensure the event is processed
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // Show thank you page
-    this.showPage(7);
-    
-  } catch (error) {
-    console.error('Form submission error:', error);
-    alert('There was an error submitting your form. Please try again.');
-  }
+        console.log('Dispatching event with data:', formData);
+        
+        const event = new CustomEvent('submitQuote', {
+            detail: formData,
+            bubbles: true,
+            composed: true
+        });
+        
+        this.dispatchEvent(event);
+        
+        // Note: Don't show thank you page here
+        // Let the Velo code handle it after successful submission
+        
+    } catch (error) {
+        console.error('Form submission error:', error);
+        alert('There was an error submitting your form. Please try again.');
+    }
 }
+
 
 initializeEventListeners() {
 // Begin button
