@@ -1,4 +1,3 @@
-
 class QuoteForm extends HTMLElement {
     constructor() {
         super();
@@ -692,19 +691,25 @@ async submitQuote() {
             }
         };
 
-        console.log('Dispatching event with data:', formData);
-        
+        // Dispatch event and wait for result
         const event = new CustomEvent('submitQuote', {
             detail: formData,
             bubbles: true,
             composed: true
         });
         
-        this.dispatchEvent(event);
+        const result = await this.dispatchEvent(event);
+        
+        if (result) {
+            // Success - show thank you page
+            this.showPage(7);
+        } else {
+            // Error - stay on current page or show error
+            console.error('Submission failed');
+        }
         
     } catch (error) {
         console.error('Form submission error:', error);
-        // Error handling is now done in the Velo code
     }
 }
 
