@@ -648,7 +648,6 @@ clearSavedData() {
   localStorage.removeItem('formData');
 }
 
-
 async submitQuote() {
     try {
         const formData = {
@@ -683,15 +682,11 @@ async submitQuote() {
         
         this.dispatchEvent(event);
         
-        // Note: Don't show thank you page here
-        // Let the Velo code handle it after successful submission
-        
     } catch (error) {
         console.error('Form submission error:', error);
-        alert('There was an error submitting your form. Please try again.');
+        // Error handling is now done in the Velo code
     }
 }
-
 
 initializeEventListeners() {
 // Begin button
