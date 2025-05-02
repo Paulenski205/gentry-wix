@@ -92,7 +92,7 @@ validatePhoneNumber(phone) {
     if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@5727d9a1142417ae34c51985ab2c3551171d20ed/wix-form-styles.css";
+      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@5cd0efa9a795e74544fca57075e70d05e691218e/wix-form-styles.css";
       document.head.appendChild(link);
     }
 
