@@ -209,6 +209,16 @@ validatePhoneNumber(phone) {
     this.initializeEventListeners();
 // Load saved data after form is initialized
   this.loadFormData();
+
+// Add success/error event listeners
+    this.addEventListener('submitSuccess', () => {
+        this.showPage(7); // Show thank you page
+    });
+
+    this.addEventListener('submitError', () => {
+        this.showPage(1); // Go back to first page
+    });
+
   }
 
 renderStyleSelectionPage() {
