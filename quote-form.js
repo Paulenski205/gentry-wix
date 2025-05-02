@@ -36,7 +36,7 @@ formatPhoneNumber(value) {
 
 // Zip code validator
 validateZipCode(value) {
-  return /^\d{5}$/.test(value);
+  return /^\d{5}$/.test(value);  // This checks for exactly 5 digits
 }
 
 
@@ -92,7 +92,7 @@ validatePhoneNumber(phone) {
     if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@61914f512e68177b322e0dad67b6d6c2fd6e1960/wix-form-styles.css";
+      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@5727d9a1142417ae34c51985ab2c3551171d20ed/wix-form-styles.css";
       document.head.appendChild(link);
     }
 
@@ -130,7 +130,7 @@ validatePhoneNumber(phone) {
 </select>
                 </div>
                 <div class="form-group">
-  <label for="Zip">Zip*</label>
+  <label for="Zip">Zip</label>
   <input type="text" id="Zip" required placeholder="Required field" maxlength="5" inputmode="numeric" pattern="\d{5}">
 </div>
               </div>
@@ -433,16 +433,24 @@ if (page5) {
   });
 }
 
+// Update validateRequiredFields method
 validateRequiredFields(pageId) {
   const inputs = this.querySelectorAll(`#${pageId} [required]`);
   let isValid = true;
   
   inputs.forEach(input => {
-    if (!input.value.trim()) {
+    // Clear previous error states
+    input.classList.remove('field-error');
+    
+    if (input.id === 'Zip') {
+      // Special validation for zip code
+      if (!input.value.trim() || input.value.length !== 5) {
+        input.classList.add('field-error');
+        isValid = false;
+      }
+    } else if (!input.value.trim()) {
       input.classList.add('field-error');
       isValid = false;
-    } else {
-      input.classList.remove('field-error');
     }
   });
 
@@ -647,14 +655,18 @@ submitQuote() {
     }
   };
 
-  // Here you would typically send this data to your server
-  console.log('Submitting quote:', formData);
-  
-  // Show success message
-  alert('Thank you for your submission! We will contact you shortly.');
-  
-  // Reset the form
-  this.resetForm();
+  // Dispatch the custom event
+  const event = new CustomEvent('submitQuote', {
+    detail: formData,
+    bubbles: true,
+    composed: true
+  });
+  this.dispatchEvent(event);
+
+  // Show success message only after successful submission from Velo
+  // Remove or comment out these lines:
+  // alert('Thank you for your submission! We will contact you shortly.');
+  // this.resetForm();
 }
 
 
@@ -809,22 +821,23 @@ if (zipInput) {
       e.target.value = e.target.value.slice(0, 5);
     }
 
-    // Validate zip code and remove error class if valid
-    if (this.validateZipCode(e.target.value)) {
+    // Clear any previous validation states
+    zipInput.classList.remove('field-error');
+    
+    // Validate zip code
+    if (e.target.value.length === 5) {
       zipInput.setCustomValidity('');
-      zipInput.classList.remove('field-error'); // Add this line
+      zipInput.classList.remove('field-error'); // Ensure error class is removed
+      this.quoteData.Zip = e.target.value;
+      this.saveFormData();
     } else {
       zipInput.setCustomValidity('Please enter a valid 5-digit zip code');
-      zipInput.classList.add('field-error'); // Add this line
+      zipInput.classList.add('field-error');
     }
   });
 
-  // Prevent non-numeric input
-  zipInput.addEventListener('keypress', (e) => {
-    if (!/\d/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete') {
-      e.preventDefault();
-    }
-  });
+  // Remove blur event handler if it exists
+  zipInput.removeEventListener('blur', () => {});
 }
 
 // In your initializeEventListeners method, add save calls:
