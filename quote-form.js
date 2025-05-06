@@ -105,7 +105,7 @@ validatePhoneNumber(phone) {
     if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@44fb9a159167026ed5da6d80e3e0d1bd930f151d/wix-form-styles.css";
+      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@2819f8020777a487516f1b642b39b12514f46592/wix-form-styles.css";
       document.head.appendChild(link);
     }
 
@@ -343,100 +343,156 @@ renderDimensionsPage() {
     page5 = document.createElement('div');
     page5.id = 'page5';
     page5.className = 'form-page';
-    this.querySelector('.form-body').appendChild(page5); // Append to form-body
+    this.querySelector('.form-body').appendChild(page5);
   }
 
-// Different dimension fields based on room type
-let dimensionFields = '';
-switch(this.quoteData.Room) {
-  case 'Kitchens':
-    dimensionFields = `
-      <div class="form-row dimensions-row">
-        <div class="form-group">
-          <label for="length">Kitchen Length (inches)*</label>
-          <input type="number" id="length" required min="1" step="0.1" placeholder="Required field">
+  // Different dimension fields based on room type
+  let dimensionFields = '';
+  switch(this.quoteData.Room) {
+    case 'Kitchens':
+      dimensionFields = `
+        <div class="form-row dimensions-row">
+          <div class="form-group">
+            <label for="wallA">Wall A Length (inches)</label>
+            <input type="number" id="wallA" min="1" step="0.1" placeholder="Optional">
+          </div>
+          <div class="form-group">
+            <label for="wallB">Wall B Length (inches)</label>
+            <input type="number" id="wallB" min="1" step="0.1" placeholder="Optional">
+          </div>
         </div>
-        <div class="form-group">
-          <label for="width">Kitchen Width (inches)*</label>
-          <input type="number" id="width" required min="1" step="0.1" placeholder="Required field">
+        <div class="form-row dimensions-row">
+          <div class="form-group">
+            <label for="wallC">Wall C Length (inches)</label>
+            <input type="number" id="wallC" min="1" step="0.1" placeholder="Optional">
+          </div>
+          <div class="form-group">
+            <label for="wallD">Wall D Length (inches)</label>
+            <input type="number" id="wallD" min="1" step="0.1" placeholder="Optional">
+          </div>
         </div>
-        <div class="form-group">
-          <label for="ceiling">Kitchen Height (inches)*</label>
-          <input type="number" id="ceiling" required min="1" step="0.1" placeholder="Required field">
+        <div class="form-row dimensions-row">
+          <div class="form-group">
+            <label for="ceiling">Ceiling Height (inches)</label>
+            <input type="number" id="ceiling" min="1" step="0.1" placeholder="Optional">
+          </div>
         </div>
-      </div>
-    `;
-    break;
-  case 'Bathrooms':
-    dimensionFields = `
-      <div class="form-row dimensions-row">
-        <div class="form-group">
-          <label for="length">Bathroom Length (inches)*</label>
-          <input type="number" id="length" required min="1" step="0.1" placeholder="Required field">
+      `;
+      break;
+    case 'Bathrooms':
+      dimensionFields = `
+        <div class="form-row dimensions-row">
+          <div class="form-group">
+            <label for="wallA">Wall A Length (inches)</label>
+            <input type="number" id="wallA" min="1" step="0.1" placeholder="Optional">
+          </div>
+          <div class="form-group">
+            <label for="wallB">Wall B Length (inches)</label>
+            <input type="number" id="wallB" min="1" step="0.1" placeholder="Optional">
+          </div>
         </div>
-        <div class="form-group">
-          <label for="width">Bathroom Width (inches)*</label>
-          <input type="number" id="width" required min="1" step="0.1" placeholder="Required field">
+        <div class="form-row dimensions-row">
+          <div class="form-group">
+            <label for="ceiling">Ceiling Height (inches)</label>
+            <input type="number" id="ceiling" min="1" step="0.1" placeholder="Required field">
+          </div>
         </div>
-        <div class="form-group">
-          <label for="ceiling">Bathroom Height (inches)*</label>
-          <input type="number" id="ceiling" required min="1" step="0.1" placeholder="Required field">
+      `;
+      break;
+    case 'Closets':
+      dimensionFields = `
+        <div class="form-row dimensions-row">
+          <div class="form-group">
+            <label for="wallA">Wall A Length (inches)</label>
+            <input type="number" id="wallA" min="1" step="0.1" placeholder="Optional">
+          </div>
+          <div class="form-group">
+            <label for="wallB">Wall B Length (inches)</label>
+            <input type="number" id="wallB" min="1" step="0.1" placeholder="Optional">
+          </div>
         </div>
-      </div>
-    `;
-    break;
-  case 'Closets':
-    dimensionFields = `
-      <div class="form-row dimensions-row">
-        <div class="form-group">
-          <label for="length">Closet Length (inches)*</label>
-          <input type="number" id="length" required min="1" step="0.1" placeholder="Required field">
+<div class="form-row dimensions-row">
+          <div class="form-group">
+            <label for="wallA">Wall C Length (inches)</label>
+            <input type="number" id="wallC" min="1" step="0.1" placeholder="Optional">
+          </div>
+          <div class="form-group">
+            <label for="wallB">Wall D Length (inches)</label>
+            <input type="number" id="wallD" min="1" step="0.1" placeholder="Optional">
+          </div>
         </div>
-        <div class="form-group">
-          <label for="width">Closet Width (inches)*</label>
-          <input type="number" id="width" required min="1" step="0.1" placeholder="Required field">
+        <div class="form-row dimensions-row">
+          <div class="form-group">
+            <label for="ceiling">Ceiling Height (inches)*</label>
+            <input type="number" id="ceiling" min="1" step="0.1" placeholder="Optional">
+          </div>
         </div>
-        <div class="form-group">
-          <label for="ceiling">Closet Height (inches)*</label>
-          <input type="number" id="ceiling" required min="1" step="0.1" placeholder="Required field">
+      `;
+      break;
+    default:
+      const roomName = this.quoteData.customRoomName || 'Room';
+      dimensionFields = `
+        <div class="form-row dimensions-row">
+          <div class="form-group">
+            <label for="wallA">Wall A Length (inches)</label>
+            <input type="number" id="wallA" min="1" step="0.1" placeholder="Optional">
+          </div>
+          <div class="form-group">
+            <label for="wallB">Wall B Length (inches)</label>
+            <input type="number" id="wallB" min="1" step="0.1" placeholder="Optional">
+          </div>
         </div>
-      </div>
-    `;
-    break;
-  default:
-    // For "Other Spaces", use the custom room name if available
-    const roomName = this.quoteData.customRoomName || 'Room';
-    dimensionFields = `
-      <div class="form-row dimensions-row">
-        <div class="form-group">
-          <label for="length">${roomName} Length (inches)*</label>
-          <input type="number" id="length" required min="1" step="0.1" placeholder="Required field">
+<div class="form-row dimensions-row">
+          <div class="form-group">
+            <label for="wallC">Wall C Length (inches)</label>
+            <input type="number" id="wallC" min="1" step="0.1" placeholder="Optional">
+          </div>
+          <div class="form-group">
+            <label for="wallD">Wall D Length (inches)</label>
+            <input type="number" id="wallD" min="1" step="0.1" placeholder="Optional">
+          </div>
         </div>
-        <div class="form-group">
-          <label for="width">${roomName} Width (inches)*</label>
-          <input type="number" id="width" required min="1" step="0.1" placeholder="Required field">
+        <div class="form-row dimensions-row">
+          <div class="form-group">
+            <label for="ceiling">Ceiling Height (inches)</label>
+            <input type="number" id="ceiling" min="1" step="0.1" placeholder="Optional">
+          </div>
+<div class="form-group">
+            <label for="customlocation">Location of Room</label>
+            <input type="text" id="customlocation" placeholder="Optional">
+          </div>
         </div>
-        <div class="form-group">
-          <label for="ceiling">${roomName} Height (inches)*</label>
-          <input type="number" id="ceiling" required min="1" step="0.1" placeholder="Required field">
+      `;
+  }
+
+  // Add a diagram or explanation of wall labeling
+  const wallDiagram = `
+    <div class="wall-diagram">
+            <div class="square">
+                <span class="wall-label top">Wall A</span>
+                <span class="wall-label right">Wall B</span>
+                <span class="wall-label bottom">Wall C</span>
+                <span class="wall-label left">Wall D</span>
+            </div>
+            <p class="diagram-note">Please measure each wall length. Start with your main wall as "Wall A" and continue clockwise.</p>
         </div>
-      </div>
-    `;
-}
-if (page5) {
-  page5.innerHTML = `
-    <div class="required-note">*Required</div>
-    <h2>Room Dimensions</h2>
-    <div class="form-content">
-      ${dimensionFields}
-      <div class="form-row">
-        <div class="form-group full-width">
-          <label for="additional-notes">Additional Notes (optional)</label>
-          <textarea id="additional-notes" rows="4"></textarea>
-        </div>
-      </div>
-    </div>
   `;
+
+  if (page5) {
+        page5.innerHTML = `
+        <div class="required-note">*Required</div>
+        <h2>Room Dimensions</h2>
+        ${wallDiagram}
+        <div class="form-content">
+            ${dimensionFields}
+            <div class="form-row">
+            <div class="form-group full-width">
+                <label for="additional-notes">Additional Notes (optional)</label>
+                <textarea id="additional-notes" rows="4"></textarea>
+            </div>
+            </div>
+        </div>
+        `;
 } else {
     console.error("Error: page5 element not found.");
   }
@@ -457,6 +513,77 @@ if (page5) {
       this.saveFormData(); // Save after each change
     });
   });
+
+// Add some CSS to style the single height input
+  const style = document.createElement('style');
+    style.textContent = `
+        .wall-diagram {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            display: flex; /* Add display flex */
+            align-items: center; /* Center square and text */
+            gap: 20px; /* Add some space between square and text */
+        }
+
+        .diagram-note {
+            color: var(--text-light);
+            font-style: italic;
+            margin: 0;
+        }
+
+        .dimensions-row {
+            margin-bottom: 20px;
+        }
+
+        /* Style for the height input row */
+        .dimensions-row:last-of-type .form-group {
+            max-width: 50%;
+            margin: 0 auto;
+        }
+
+        /* Square container */
+        .square {
+            width: 100px;
+            height: 100px;
+            border: 2px solid var(--text-light);
+            position: relative;
+        }
+
+        /* Wall labels */
+        .wall-label {
+            position: absolute;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .wall-label.top {
+            top: -20px; /* Adjust to position above the square */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .wall-label.right {
+            right: -45px; /* Adjust to position right of the square */
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .wall-label.bottom {
+            bottom: -20px; /* Adjust to position below the square */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .wall-label.left {
+            left: -45px; /* Adjust to position left of the square */
+            top: 50%;
+            transform: translateY(-50%);
+        }
+    `;
+    page5.appendChild(style);
+  document.head.appendChild(style);
 
   // Add event listener for additional notes
   const notesInput = page5.querySelector('#additional-notes');
@@ -719,13 +846,13 @@ initializeEventListeners() {
 
 
   // Previous button
-  this.querySelector("#prevBtn").onclick = () => {
+ this.querySelector("#prevBtn").onclick = () => {
     if (this.currentPage === 5 && this.quoteData.Room === 'Other Spaces') {
-      this.showPage(3); // Go back to room selection
+      this.showPage(3); // Go back to room selection from dimensions page
       return;
     }
     this.showPage(this.currentPage - 1);
-  };
+};
 
  // Next button
 this.querySelector("#nextBtn").onclick = () => {
@@ -766,15 +893,15 @@ this.querySelector("#nextBtn").onclick = () => {
       }
 
       if (this.quoteData.Room === 'Other Spaces') {
-        this.quoteData.StyleSelection = 'Custom';
-        this.renderDimensionsPage();
-        this.showPage(5); // Go directly to dimensions page
-        this.currentPage = 5; // Update currentPage
+        this.quoteData.StyleSelection = 'Custom'; // Set default style
+
+        this.renderDimensionsPage(); // Render dimensions page
+        this.showPage(5);             // Show dimensions page
+        this.currentPage = 5;         // Update current page
       } else {
-        // For other rooms, go to the style selection page
         this.renderStyleSelectionPage();
-        this.showPage(4); // Explicitly go to page 4
-        this.currentPage = 4; // Update currentPage
+        this.showPage(4);
+        this.currentPage = 4;
       }
       break;
 
@@ -788,22 +915,21 @@ this.querySelector("#nextBtn").onclick = () => {
       this.currentPage = 5; // Update currentPage
       break;
 
-    case 5: // Dimensions
-      if (!this.validateRequiredFields('page5')) {
+case 5: // Dimensions
+    if (!this.validateRequiredFields('page5')) {
         return;
-      }
-      if (!this.collectDimensions()) {
-        alert("Please enter valid dimensions.");
-        return;
-      }
-      this.renderReviewPage();
-      this.showPage(6); // Go to review page
-      this.currentPage = 6; // Update currentPage
-      break;
+    }
+    if (!this.collectDimensions()) {
+        return; // Alert handled in collectDimensions
+    }
+    this.renderReviewPage();
+    this.showPage(6);
+    this.currentPage = 6;
+    break;
 
-    case 6: // Review
-      this.submitQuote();
-      return; // Don't increment currentPage
+case 6: // Review
+    this.submitQuote();
+    return; // Don't incremen
   }
 };
 
@@ -855,32 +981,25 @@ if (phoneInput) {
 // Zip code validation
 const zipInput = this.querySelector('#Zip');
 if (zipInput) {
-  zipInput.addEventListener('input', (e) => {
-    // Remove non-numeric characters
-    e.target.value = e.target.value.replace(/\D/g, '');
-    
-    // Limit to 5 digits
-    if (e.target.value.length > 5) {
-      e.target.value = e.target.value.slice(0, 5);
-    }
+    zipInput.addEventListener('input', (e) => {
+        // Sanitize input (remove non-digits, limit to 5)
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
+    });
 
-    // Clear any previous validation states
-    zipInput.classList.remove('field-error');
-    
-    // Validate zip code
-    if (e.target.value.length === 5) {
-      zipInput.setCustomValidity('');
-      zipInput.classList.remove('field-error'); // Ensure error class is removed
-      this.quoteData.Zip = e.target.value;
-      this.saveFormData();
-    } else {
-      zipInput.setCustomValidity('Please enter a valid 5-digit zip code');
-      zipInput.classList.add('field-error');
-    }
-  });
-
-  // Remove blur event handler if it exists
-  zipInput.removeEventListener('blur', () => {});
+    zipInput.addEventListener('blur', () => { // Validate on blur
+        console.log("Blur event fired on Zip input"); // Debug log
+        if (zipInput.value.length === 5) {
+            console.log("Zip code is valid:", zipInput.value); // Debug log
+            zipInput.setCustomValidity('');
+            zipInput.classList.remove('field-error');
+            this.quoteData.Zip = zipInput.value;
+            this.saveFormData();
+        } else {
+            console.log("Zip code is invalid:", zipInput.value); // Debug log
+            zipInput.setCustomValidity('Please enter a valid 5-digit zip code');
+            zipInput.classList.add('field-error');
+        }
+    });
 }
 
 // In your initializeEventListeners method, add save calls:
@@ -934,24 +1053,31 @@ phoneInput?.addEventListener("input", () => {
 
 // Also add this helper method to collect dimensions
 collectDimensions() {
-  const dimensions = {};
-  const inputs = this.querySelectorAll('#page5 input[type="number"]');
-  let isValid = true;
+    const dimensions = {};
+    const inputs = this.querySelectorAll('#page5 input[type="number"]');
+    let isValid = true;
 
-  inputs.forEach(input => {
-    if (!input.value || input.value <= 0) {
-      isValid = false;
-    } else {
-      dimensions[input.id] = parseFloat(input.value);
+    inputs.forEach(input => {
+        if (input.value.trim() !== '' && (isNaN(input.value) || parseFloat(input.value) <= 0)) {
+            isValid = false; // Invalid number
+            input.classList.add('field-error');
+        } else if (input.hasAttribute('required') && input.value.trim() === '') {
+            isValid = false; // Required and empty
+            input.classList.add('field-error');
+        } else if (input.value.trim() !== '') {
+            dimensions[input.id] = parseFloat(input.value); // Collect if valid
+            input.classList.remove('field-error');
+        }
+    });
+
+    if (isValid) {
+        this.quoteData.dimensions = dimensions;
+        this.saveFormData();
+        return true;
     }
-  });
 
-  if (isValid) {
-    this.quoteData.dimensions = dimensions;
-    this.saveFormData(); // Save after collecting dimensions
-    return true;
-  }
-  return false;
+    alert("Please enter valid dimensions. Required fields cannot be empty, and optional fields must contain valid numbers.");
+    return false;
 }
 
 clearSavedData() {
