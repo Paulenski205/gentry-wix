@@ -913,51 +913,8 @@ textarea:focus {
     flex-basis: 100%; /* Ensure note occupies full width on smaller screens */
 }
 
-/* Media query for smaller screens */
-@media (max-width: 400px) { /* Adjust breakpoint as needed */
-    .wall-diagram {
-        flex-direction: column; /* Stack vertically */
-        align-items: center;    /* Center horizontally */
-    }
-
-    .wall-label {
-        position: static; /* Make labels static for better flow */
-        display: block;   /* Display labels as blocks */
-        text-align: center; /* Center label text */
-        margin: 5px 0;   /* Add vertical margin */
-    }
-
-    .square {
-        margin-bottom: 10px; /* Add space below the square */
-    }
-}
-.quote-form-container.fullscreen .form-body {
-    height: calc(100vh - 60px); /* Adjust for navbar */
-    overflow-y: auto;
-}
-
-.quote-form-container.fullscreen .form-page {
-    height: calc(100% - 40px); /* Adjust for padding */
-}
-
-
-.quote-form-container.fullscreen {
-    width: 100vw; /* Use viewport width */
-    height: 100vh; /* Use viewport height */
-    margin: 0;
-    border-radius: 0;
-    box-shadow: none;
-    position: fixed; /* Stay fixed */
-    top: 0;
-    left: 0;
-}
-
 #exitFullscreenBtn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 1001; /* Ensure it's above other elements */
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    background-color: rgba(0, 0, 0, 0.5);
     color: white;
     border: none;
     padding: 8px 12px;
@@ -965,37 +922,38 @@ textarea:focus {
     cursor: pointer;
 }
 
-
-
 /* Responsive Design - Consolidated */
 @media (max-width: 768px) {
 
- .quote-form-container.fullscreen {
-        width: 100vw; /* Use viewport width */
-        height: 100vh; /* Use viewport height */
+.quote-form-container.fullscreen {
+        width: 100vw;
+        height: 100vh;
         margin: 0;
         border-radius: 0;
         box-shadow: none;
-        position: fixed; /* Stay fixed */
+        position: fixed;
         top: 0;
         left: 0;
-        overflow: hidden; /* Prevent scroll on body */
+        overflow: hidden; /* Prevent scrolling on the body */
     }
 
- .quote-form-container.fullscreen #exitFullscreenBtn {
- right: 20px;
-  }
-
-    .quote-form-container.fullscreen .form-body {
+  .quote-form-container.fullscreen .form-body {
         height: calc(100vh - 60px); /* Adjust for navbar */
         overflow-y: auto; /* Enable scrolling within the form body */
         padding: 20px;
     }
 
     .quote-form-container.fullscreen .form-page {
-        min-height: calc(100% - 40px); /* Adjust for padding */
-        padding: 20px;
-        /* ... other existing mobile styles ... */
+        height: calc(100% - 40px); /* Adjust for padding */
+    }
+
+    /* Styles for the exit fullscreen button on mobile */
+    .quote-form-container.fullscreen #exitFullscreenBtn {
+        position: fixed; /* Fixed positioning */
+        top: 10px;
+        right: 20px; /* Add some spacing */
+        z-index: 1001;
+        /* ... other button styles ... */
     }
 
   .quote-form-container {
@@ -1343,6 +1301,22 @@ gap: 15px;
 
 /* Very small screens (480px and below) */
 @media (max-width: 480px) {
+
+.wall-diagram {
+        flex-direction: column; /* Stack vertically */
+        align-items: center;    /* Center horizontally */
+    }
+
+    .wall-label {
+        position: static; /* Make labels static for better flow */
+        display: block;   /* Display labels as blocks */
+        text-align: center; /* Center label text */
+        margin: 5px 0;   /* Add vertical margin */
+    }
+
+    .square {
+        margin-bottom: 10px; /* Add space below the square */
+    }
 
 .quote-form-container.fullscreen {
         /* Inherit styles from the 768px media query */
