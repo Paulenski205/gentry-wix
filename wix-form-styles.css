@@ -931,13 +931,68 @@ textarea:focus {
         margin-bottom: 10px; /* Add space below the square */
     }
 }
+.quote-form-container.fullscreen .form-body {
+    height: calc(100vh - 60px); /* Adjust for navbar */
+    overflow-y: auto;
+}
+
+.quote-form-container.fullscreen .form-page {
+    height: calc(100% - 40px); /* Adjust for padding */
+}
+
+
+.quote-form-container.fullscreen {
+    width: 100vw; /* Use viewport width */
+    height: 100vh; /* Use viewport height */
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    position: fixed; /* Stay fixed */
+    top: 0;
+    left: 0;
+}
 
 
 
 
 
 /* Responsive Design - Consolidated */
+
+
+
+
+
+
+
+
+
+
 @media (max-width: 768px) {
+
+ .quote-form-container.fullscreen {
+        width: 100vw; /* Use viewport width */
+        height: 100vh; /* Use viewport height */
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+        position: fixed; /* Stay fixed */
+        top: 0;
+        left: 0;
+        overflow: hidden; /* Prevent scroll on body */
+    }
+
+    .quote-form-container.fullscreen .form-body {
+        height: calc(100vh - 60px); /* Adjust for navbar */
+        overflow-y: auto; /* Enable scrolling within the form body */
+        padding: 20px;
+    }
+
+    .quote-form-container.fullscreen .form-page {
+        min-height: calc(100% - 40px); /* Adjust for padding */
+        padding: 20px;
+        /* ... other existing mobile styles ... */
+    }
+
   .quote-form-container {
     width: 100%;
     height: 100vh;
@@ -1283,6 +1338,21 @@ gap: 15px;
 
 /* Very small screens (480px and below) */
 @media (max-width: 480px) {
+
+.quote-form-container.fullscreen {
+        /* Inherit styles from the 768px media query */
+    }
+
+    .quote-form-container.fullscreen .form-body {
+        padding: 10px; /* Reduce padding further */
+    }
+
+    .quote-form-container.fullscreen .form-page {
+        min-height: calc(100% - 20px); /* Adjust for reduced padding */
+        padding: 10px; /* Reduce padding further */
+        /* ... other existing mobile styles ... */
+    }
+
   .quote-form-container {
     width: 100%;
     margin: 0;
