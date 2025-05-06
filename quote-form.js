@@ -1,19 +1,28 @@
 class QuoteForm extends HTMLElement {
     constructor() {
-        super();
-        this.currentPage = 1;
-        this.quoteData = {};
-        this.totalPages = 7;
+    super();
+    this.currentPage = 1;
+    this.quoteData = {};
+    this.totalPages = 7;
 
-        // Add message handler
-        window.addEventListener('message', (event) => {
-            if (event.data.type === 'success') {
-                this.showPage(7); // Show thank you page
-            } else if (event.data.type === 'error') {
-                this.showPage(1); // Go back to first page
-            }
-        });
-    }
+    // Initialize exitFullscreenBtn as a class property
+    this.exitFullscreenBtn = document.createElement('button');
+    this.exitFullscreenBtn.id = 'exitFullscreenBtn';
+    this.exitFullscreenBtn.textContent = 'Exit Fullscreen';
+    this.exitFullscreenBtn.style.display = 'none'; // Initially hidden
+    this.appendChild(this.exitFullscreenBtn);
+
+
+    // Add message handler
+    window.addEventListener('message', (event) => {
+        if (event.data.type === 'success') {
+            this.showPage(7); // Show thank you page
+        } else if (event.data.type === 'error') {
+            this.showPage(1); // Go back to first page
+        }
+    });
+
+}
 
 // Phone number formatter
 formatPhoneNumber(value) {
@@ -105,7 +114,7 @@ validatePhoneNumber(phone) {
     if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@5a6aa0ab90e74b141eeea0e573f2f2fa2b9751dd/wix-form-styles.css";
+      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@e2fc1eafdc589f990fc96f6ba573cfe83664fd12/wix-form-styles.css";
       document.head.appendChild(link);
     }
 
@@ -205,49 +214,45 @@ validatePhoneNumber(phone) {
     this.clearSavedData();
   });
 
-// Initial button setup
-    // Add event listener to the Begin button
+// Get button elements *after* they've been added to the DOM
     const beginButton = this.querySelector("#beginBtn");
-    beginButton.addEventListener('click', () => {
-        if (window.innerWidth <= 768) {
-            this.requestFullscreen();
-            this.classList.add('fullscreen');
-            exitFullscreenBtn.style.display = 'block'; // Show exit button
-        }
-        this.showPage(2);
-    });
     const prevButton = this.querySelector("#prevBtn");
     const nextButton = this.querySelector("#nextBtn");
-
-// Add event listener for fullscreen change
-    document.addEventListener('fullscreenchange', () => {
-        if (!document.fullscreenElement) {
-            this.classList.remove('fullscreen');
-            exitFullscreenBtn.style.display = 'none'; // Hide exit button
-        }
-    });
-
-   
-// Create the exit fullscreen button
-    const exitFullscreenBtn = document.createElement('button');
-    exitFullscreenBtn.id = 'exitFullscreenBtn';
-    exitFullscreenBtn.textContent = 'Exit Fullscreen';
-    exitFullscreenBtn.style.display = 'none'; // Initially hidden
-    this.appendChild(exitFullscreenBtn); // Add to the form container
-
- // Add event listener to the Exit Fullscreen button
-    exitFullscreenBtn.addEventListener('click', () => {
-        document.exitFullscreen();
-    });
+    const resetFormBtn = this.querySelector("#resetFormBtn"); // Get reset button
+    const startOverBtn = this.querySelector("#startOverBtn"); // Get start over button
+    const roomOptions = this.querySelectorAll(".room-option"); // Get room options
 
     // Set initial visibility
     beginButton.style.display = "block";
     prevButton.style.display = "none";
     nextButton.style.display = "none";
 
-    this.initializeEventListeners();
-// Load saved data after form is initialized
-  this.loadFormData();
+// Initial button setup
+beginButton.addEventListener('click', () => {
+    if (window.innerWidth <= 768) {
+        this.requestFullscreen().then(() => {
+            this.classList.add('fullscreen');
+            this.exitFullscreenBtn.style.display = 'block'; // Access class property
+        });
+    }
+    this.showPage(2);
+});
+
+ // Fullscreen change listener
+    document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+            this.classList.remove('fullscreen');
+            this.exitFullscreenBtn.style.display = 'none'; // Access class property
+        }
+    });
+
+    // Exit fullscreen button listener
+    this.exitFullscreenBtn.addEventListener('click', () => { // Access class property
+        document.exitFullscreen();
+    });
+
+    this.initializeEventListeners(); // Call after adding specific event listeners
+    this.loadFormData()
 
 // Add success/error event listeners
     this.addEventListener('submitSuccess', () => {
@@ -871,6 +876,12 @@ async submitQuote() {
 }
 
 initializeEventListeners() {
+
+// Access the button using this.exitFullscreenBtn
+    this.exitFullscreenBtn.addEventListener('click', () => {
+        document.exitFullscreen();
+    });
+
 // Begin button
   this.querySelector("#beginBtn").onclick = () => this.showPage(2);
 
@@ -963,6 +974,29 @@ case 6: // Review
   }
 };
 
+ // Reset form button
+    this.querySelector("#resetFormBtn").onclick = () => {
+      if (confirm("Are you sure you want to reset the form? All entered data will be lost.")) {
+        this.resetForm();
+      }
+    };
+
+// Start Over button
+  this.querySelector("#startOverBtn").onclick = () => {
+    this.resetForm();
+    this.showPage(1);
+  };
+
+    // Room selection
+    const roomOptions = this.querySelectorAll(".room-option");
+    roomOptions.forEach(option => {
+      option.onclick = () => {
+  roomOptions.forEach(o => o.classList.remove("selected"));
+  option.classList.add("selected");
+  this.quoteData.Room = option.dataset.room;
+  this.saveFormData();
+};
+    });
 
 // Add input event listeners for required fields
     const requiredInputs = this.querySelectorAll('[required]');
@@ -1030,7 +1064,7 @@ if (zipInput) {
             zipInput.classList.add('field-error');
         }
     });
-}
+
 
 // In your initializeEventListeners method, add save calls:
 emailInput?.addEventListener("input", () => {
@@ -1053,34 +1087,9 @@ phoneInput?.addEventListener("input", () => {
   } else {
     phoneInput.setCustomValidity("Please enter a valid phone number");
   }
-});
-
-    // Reset form button
-    this.querySelector("#resetFormBtn").onclick = () => {
-      if (confirm("Are you sure you want to reset the form? All entered data will be lost.")) {
-        this.resetForm();
-      }
-    };
-
-    // Room selection
-    const roomOptions = this.querySelectorAll(".room-option");
-    roomOptions.forEach(option => {
-      option.onclick = () => {
-  roomOptions.forEach(o => o.classList.remove("selected"));
-  option.classList.add("selected");
-  this.quoteData.Room = option.dataset.room;
-  this.saveFormData();
-};
-    });
-
-  // Start Over button
-  this.querySelector("#startOverBtn").onclick = () => {
-    this.resetForm();
-    this.showPage(1);
-  };
-
-  }
-
+       });
+    }
+}
 // Also add this helper method to collect dimensions
 collectDimensions() {
     const dimensions = {};
