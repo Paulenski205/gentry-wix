@@ -105,7 +105,7 @@ validatePhoneNumber(phone) {
     if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@5480496d7449164ba91856c0752096a93e040eea/wix-form-styles.css";
+      link.href = "hhttps://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@92818bd7b60a237c6a2e1007f21675ce2773a526/wix-form-styles.css";
       document.head.appendChild(link);
     }
 
@@ -207,21 +207,39 @@ validatePhoneNumber(phone) {
 
 // Initial button setup
     // Add event listener to the Begin button
-     const beginButton = this.querySelector("#beginBtn");
+    const beginButton = this.querySelector("#beginBtn");
     beginButton.addEventListener('click', () => {
-        if (window.innerWidth <= 768) { // Check for mobile screen width
+        if (window.innerWidth <= 768) {
             this.requestFullscreen();
-            this.classList.add('fullscreen'); // Add fullscreen class
+            this.classList.add('fullscreen');
+            exitFullscreenBtn.style.display = 'block'; // Show exit button
         }
-        this.showPage(2); // Show the next page
+        this.showPage(2);
     });
     const prevButton = this.querySelector("#prevBtn");
     const nextButton = this.querySelector("#nextBtn");
-document.addEventListener('fullscreenchange', () => {
+
+// Add event listener for fullscreen change
+    document.addEventListener('fullscreenchange', () => {
         if (!document.fullscreenElement) {
-            this.classList.remove('fullscreen'); // Remove fullscreen class when exiting
+            this.classList.remove('fullscreen');
+            exitFullscreenBtn.style.display = 'none'; // Hide exit button
         }
     });
+
+   
+// Create the exit fullscreen button
+    const exitFullscreenBtn = document.createElement('button');
+    exitFullscreenBtn.id = 'exitFullscreenBtn';
+    exitFullscreenBtn.textContent = 'Exit Fullscreen';
+    exitFullscreenBtn.style.display = 'none'; // Initially hidden
+    this.appendChild(exitFullscreenBtn); // Add to the form container
+
+ // Add event listener to the Exit Fullscreen button
+    exitFullscreenBtn.addEventListener('click', () => {
+        document.exitFullscreen();
+    });
+
     // Set initial visibility
     beginButton.style.display = "block";
     prevButton.style.display = "none";
