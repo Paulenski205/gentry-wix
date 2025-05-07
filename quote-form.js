@@ -12,6 +12,32 @@ class QuoteForm extends HTMLElement {
     this.exitFullscreenBtn.style.display = 'none'; // Initially hidden
     this.appendChild(this.exitFullscreenBtn);
 
+// Create the fullscreen toggle button
+    this.fullscreenBtn = document.createElement('button');
+    this.fullscreenBtn.id = 'fullscreenBtn';
+    this.fullscreenBtn.textContent = 'Enter Fullscreen'; // Initial text
+    this.appendChild(this.fullscreenBtn);
+
+// Fullscreen button event listener
+    this.fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            this.requestFullscreen().then(() => {
+                this.classList.add('fullscreen');
+                this.fullscreenBtn.textContent = 'Exit Fullscreen';
+            });
+        } else {
+            document.exitFullscreen();
+            this.fullscreenBtn.textContent = 'Enter Fullscreen';
+        }
+    });
+
+    // Fullscreen change listener
+    document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+            this.classList.remove('fullscreen');
+            this.fullscreenBtn.textContent = 'Enter Fullscreen';
+        }
+    });
 
     // Add message handler
     window.addEventListener('message', (event) => {
@@ -94,6 +120,14 @@ showPage = (pageNum) => {
         }
     }
 
+// Scroll to top *after* showing the page
+    if (pageNum > 1 && this.classList.contains('fullscreen')) {
+        // Use setTimeout to ensure scrolling happens after the DOM updates
+        setTimeout(() => {
+            this.querySelector('.form-body').scrollTo({ top: 0, behavior: 'smooth' });
+        }, 0); // A delay of 0 is sufficient for the next event loop
+    }
+
     this.saveFormData();
 };
 
@@ -114,7 +148,7 @@ validatePhoneNumber(phone) {
     if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@e2fc1eafdc589f990fc96f6ba573cfe83664fd12/wix-form-styles.css";
+      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@3a4ab6a26ab593f1267d3f1e26a26684cec8d9ed/wix-form-styles.css";
       document.head.appendChild(link);
     }
 
@@ -227,16 +261,6 @@ validatePhoneNumber(phone) {
     prevButton.style.display = "none";
     nextButton.style.display = "none";
 
-// Initial button setup
-beginButton.addEventListener('click', () => {
-    if (window.innerWidth <= 768) {
-        this.requestFullscreen().then(() => {
-            this.classList.add('fullscreen');
-            this.exitFullscreenBtn.style.display = 'block'; // Access class property
-        });
-    }
-    this.showPage(2);
-});
 
  // Fullscreen change listener
     document.addEventListener('fullscreenchange', () => {
@@ -251,18 +275,19 @@ beginButton.addEventListener('click', () => {
         document.exitFullscreen();
     });
 
+// Initial button setup
+beginButton.addEventListener('click', () => {
+    if (window.innerWidth <= 768) {
+        this.requestFullscreen().then(() => {
+            this.classList.add('fullscreen');
+            this.exitFullscreenBtn.style.display = 'block'; // Access class property
+        });
+    }
+    this.showPage(2);
+});
+
     this.initializeEventListeners(); // Call after adding specific event listeners
     this.loadFormData()
-
-// Add success/error event listeners
-    this.addEventListener('submitSuccess', () => {
-        this.showPage(7); // Show thank you page
-    });
-
-    this.addEventListener('submitError', () => {
-        this.showPage(1); // Go back to first page
-    });
-
   }
 
 renderStyleSelectionPage() {
@@ -1040,6 +1065,16 @@ if (phoneInput) {
       e.preventDefault();
     }
   });
+
+// Add success/error event listeners
+    this.addEventListener('submitSuccess', () => {
+        this.showPage(7); // Show thank you page
+    });
+
+    this.addEventListener('submitError', () => {
+        this.showPage(1); // Go back to first page
+    });
+
 }
 
 // Zip code validation
@@ -1089,7 +1124,8 @@ phoneInput?.addEventListener("input", () => {
   }
        });
     }
-}
+  }
+
 // Also add this helper method to collect dimensions
 collectDimensions() {
     const dimensions = {};
