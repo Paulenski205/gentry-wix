@@ -5,39 +5,29 @@ class QuoteForm extends HTMLElement {
     this.quoteData = {};
     this.totalPages = 7;
 
+// Create the fullscreen toggle button
+    this.fullscreenBtn = this.createFullscreenButton();
+    this.fullscreenBtn.id = 'fullscreenBtn';
+    this.fullscreenBtn.textContent = 'Enter Fullscreen'; // Initial text
+
     // Initialize exitFullscreenBtn as a class property
-    this.exitFullscreenBtn = document.createElement('button');
+    this.exitFullscreenBtn = this.createExitButton();
     this.exitFullscreenBtn.id = 'exitFullscreenBtn';
     this.exitFullscreenBtn.textContent = 'Exit Fullscreen';
     this.exitFullscreenBtn.style.display = 'none'; // Initially hidden
-    this.appendChild(this.exitFullscreenBtn);
 
-// Create the fullscreen toggle button
-    this.fullscreenBtn = document.createElement('button');
-    this.fullscreenBtn.id = 'fullscreenBtn';
-    this.fullscreenBtn.textContent = 'Enter Fullscreen'; // Initial text
-    this.appendChild(this.fullscreenBtn);
-
-// Fullscreen button event listener
-    this.fullscreenBtn.addEventListener('click', () => {
-        if (!document.fullscreenElement) {
-            this.requestFullscreen().then(() => {
-                this.classList.add('fullscreen');
-                this.fullscreenBtn.textContent = 'Exit Fullscreen';
-            });
-        } else {
-            document.exitFullscreen();
-            this.fullscreenBtn.textContent = 'Enter Fullscreen';
-        }
-    });
-
-    // Fullscreen change listener
-    document.addEventListener('fullscreenchange', () => {
-        if (!document.fullscreenElement) {
-            this.classList.remove('fullscreen');
-            this.fullscreenBtn.textContent = 'Enter Fullscreen';
-        }
-    });
+// Fullscreen change listener
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+        this.classList.remove('fullscreen');
+        this.exitFullscreenBtn.style.display = 'none';
+        this.fullscreenBtn.style.display = 'block';
+    } else {
+        this.classList.add('fullscreen');
+        this.exitFullscreenBtn.style.display = 'block';
+        this.fullscreenBtn.style.display = 'none';
+    }
+});
 
     // Add message handler
     window.addEventListener('message', (event) => {
@@ -48,7 +38,43 @@ class QuoteForm extends HTMLElement {
         }
     });
 
+// Add resize listener
+    window.addEventListener('resize', () => {
+        if (window.innerWidth <= 768) {
+            if (!this.querySelector('#fullscreenBtn')) {
+                this.fullscreenBtn = this.createFullscreenButton();
+                this.fullscreenBtn.id = 'fullscreenBtn';
+                this.fullscreenBtn.textContent = 'Enter Fullscreen';
+                this.querySelector('.quote-form-container').appendChild(this.fullscreenBtn);
+            }
+        } else {
+            const fullscreenBtn = this.querySelector('#fullscreenBtn');
+            if (fullscreenBtn) {
+                fullscreenBtn.remove();
+            }
+        }
+    });
+
 }
+
+// Add the toggleFullscreen method here, alongside your other methods
+    async toggleFullscreen() {
+        try {
+            if (!document.fullscreenElement) {
+                await this.requestFullscreen();
+                this.classList.add('fullscreen');
+                this.exitFullscreenBtn.style.display = 'block';
+                this.fullscreenBtn.style.display = 'none';
+            } else {
+                await document.exitFullscreen();
+                this.classList.remove('fullscreen');
+                this.exitFullscreenBtn.style.display = 'none';
+                this.fullscreenBtn.style.display = 'block';
+            }
+        } catch (err) {
+            console.error('Error attempting to toggle fullscreen:', err);
+        }
+    }
 
 // Phone number formatter
 formatPhoneNumber(value) {
@@ -83,6 +109,25 @@ validateZipCode(value) {
   return /^\d{5}$/.test(value);  // This checks for exactly 5 digits
 }
 
+showPopup(message) {
+    const popup = this.querySelector('.custom-popup');
+    const overlay = this.querySelector('.popup-overlay');
+    const messageElement = popup.querySelector('p');
+    
+    if (message) {
+        messageElement.textContent = message;
+    }
+    
+    popup.style.display = 'block';
+    overlay.style.display = 'block';
+    
+    // Add click handler for the close button
+    const closeBtn = popup.querySelector('.popup-close');
+    closeBtn.onclick = () => {
+        popup.style.display = 'none';
+        overlay.style.display = 'none';
+    };
+}
 
 // Improved showPage method
 showPage = (pageNum) => {
@@ -148,15 +193,25 @@ validatePhoneNumber(phone) {
     if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@3a4ab6a26ab593f1267d3f1e26a26684cec8d9ed/wix-form-styles.css";
+      link.href = "https://github.com/Paulenski205/gentry-wix/blob/6b5c0a49146e406e7c7bd0b271f128334d583680/wix-form-styles.css";
       document.head.appendChild(link);
     }
 
     this.quoteData = {};
 
-    this.innerHTML = `
+this.innerHTML = `
       <div class="quote-form-container">
-        <div class="form-body">
+<!-- Add this popup markup right after quote-form-container opening tag -->
+        <div class="custom-popup" style="display: none;">
+            <div class="popup-content">
+                <h3>Required Fields</h3>
+                <p>Please fill out all required fields marked with *</p>
+                <button class="popup-close">OK</button>
+            </div>
+        </div>
+        <div class="popup-overlay" style="display: none;"></div>
+        <!-- Rest of your existing form content -->
+          <div class="form-body">
           <div class="form-page welcome-page active" id="page1">
             <div class="image-banner"><h1>Your Dream Design</h1></div>
           </div>
@@ -243,10 +298,28 @@ validatePhoneNumber(phone) {
   </div>
     `;
 
+// Only append fullscreen button for mobile
+    if (window.innerWidth <= 768) {
+        const container = this.querySelector('.quote-form-container');
+        container.appendChild(this.fullscreenBtn);
+        container.appendChild(this.exitFullscreenBtn);
+    }
+
   // Add page unload listener
   window.addEventListener('beforeunload', () => {
     this.clearSavedData();
   });
+
+ // Only create and append fullscreen button for mobile devices
+    if (window.innerWidth <= 768) {
+        this.fullscreenBtn = this.createFullscreenButton();
+        this.fullscreenBtn.id = 'fullscreenBtn';
+        this.fullscreenBtn.textContent = 'Enter Fullscreen';
+        this.querySelector('.quote-form-container').appendChild(this.fullscreenBtn);
+    }
+
+// Append exitFullscreenBtn after the form container is created
+    this.querySelector('.quote-form-container').appendChild(this.exitFullscreenBtn);
 
 // Get button elements *after* they've been added to the DOM
     const beginButton = this.querySelector("#beginBtn");
@@ -276,18 +349,24 @@ validatePhoneNumber(phone) {
     });
 
 // Initial button setup
-beginButton.addEventListener('click', () => {
+beginButton.addEventListener('click', async () => {
     if (window.innerWidth <= 768) {
-        this.requestFullscreen().then(() => {
+        try {
+            await this.requestFullscreen();
             this.classList.add('fullscreen');
-            this.exitFullscreenBtn.style.display = 'block'; // Access class property
-        });
+            this.exitFullscreenBtn.style.display = 'block';
+            this.fullscreenBtn.style.display = 'none';
+        } catch (err) {
+            console.error('Error attempting to enter fullscreen:', err);
+        }
     }
     this.showPage(2);
 });
 
+
     this.initializeEventListeners(); // Call after adding specific event listeners
     this.loadFormData()
+  
   }
 
 renderStyleSelectionPage() {
@@ -379,22 +458,21 @@ renderStyleSelectionPage() {
 
 // Update the validation method
 validateStyleSelection() {
-  const styleGrid = this.querySelector('.style-grid');
-  const requiredMessage = this.querySelector('.style-selection-required');
-  
-  // Check both the stored data and visual selection
-  const hasSelection = this.quoteData.StyleSelection && 
-                      this.querySelector('.style-option.selected');
-  
-  if (!hasSelection) {
-    styleGrid.classList.add('field-error');
-    requiredMessage.classList.add('show');
-    return false;
-  }
-  
-  styleGrid.classList.remove('field-error');
-  requiredMessage.classList.remove('show');
-  return true;
+    const styleGrid = this.querySelector('.style-grid');
+    const requiredMessage = this.querySelector('.style-selection-required');
+    
+    // Check both the stored data and visual selection
+    const hasSelection = this.quoteData.StyleSelection && 
+                        this.querySelector('.style-option.selected');
+    
+    if (!hasSelection) {
+        requiredMessage.classList.add('show');
+        return false;
+    }
+    
+    styleGrid.classList.remove('field-error');
+    requiredMessage.classList.remove('show');
+    return true;
 }
 
 renderDimensionsPage() {
@@ -657,32 +735,29 @@ renderDimensionsPage() {
   });
 }
 
-// Update validateRequiredFields method
 validateRequiredFields(pageId) {
-  const inputs = this.querySelectorAll(`#${pageId} [required]`);
-  let isValid = true;
-  
-  inputs.forEach(input => {
-    // Clear previous error states
-    input.classList.remove('field-error');
+    const inputs = this.querySelectorAll(`#${pageId} [required]`);
+    let isValid = true;
     
-    if (input.id === 'Zip') {
-      // Special validation for zip code
-      if (!input.value.trim() || input.value.length !== 5) {
-        input.classList.add('field-error');
-        isValid = false;
-      }
-    } else if (!input.value.trim()) {
-      input.classList.add('field-error');
-      isValid = false;
+    inputs.forEach(input => {
+        input.classList.remove('field-error');
+        
+        if (input.id === 'Zip') {
+            if (!input.value.trim() || input.value.length !== 5) {
+                input.classList.add('field-error');
+                isValid = false;
+            }
+        } else if (!input.value.trim()) {
+            input.classList.add('field-error');
+            isValid = false;
+        }
+    });
+
+    if (!isValid) {
+        this.showPopup('Please fill out all required fields marked with *');
     }
-  });
 
-  if (!isValid) {
-    alert("Please fill out all required fields marked with *");
-  }
-
-  return isValid;
+    return isValid;
 }
 
 renderReviewPage() {
@@ -849,6 +924,23 @@ loadFormData() {
   
 }
 
+// Helper functions to create buttons
+createFullscreenButton() {
+    const btn = document.createElement('button');
+    btn.id = 'fullscreenBtn';
+    btn.textContent = 'Enter Fullscreen';
+    btn.style.display = 'block'; // Initially visible on mobile
+    return btn;
+}
+
+createExitButton() {
+    const btn = document.createElement('button');
+    btn.id = 'exitFullscreenBtn';
+    btn.textContent = 'Exit Fullscreen';
+    btn.style.display = 'none'; // Initially hidden
+    return btn;
+}
+
 // Clear saved form data
 clearSavedData() {
   localStorage.removeItem('formData');
@@ -898,13 +990,28 @@ async submitQuote() {
     } catch (error) {
         console.error('Form submission error:', error);
     }
+
 }
 
 initializeEventListeners() {
 
-// Access the button using this.exitFullscreenBtn
-    this.exitFullscreenBtn.addEventListener('click', () => {
-        document.exitFullscreen();
+// Fullscreen button event listener
+    this.fullscreenBtn.addEventListener('click', async () => {
+        try {
+            if (!document.fullscreenElement) {
+                await this.requestFullscreen();
+                this.classList.add('fullscreen');
+                this.exitFullscreenBtn.style.display = 'block';
+                this.fullscreenBtn.style.display = 'none';
+            } else {
+                await document.exitFullscreen();
+                this.classList.remove('fullscreen');
+                this.exitFullscreenBtn.style.display = 'none';
+                this.fullscreenBtn.style.display = 'block';
+            }
+        } catch (err) {
+            console.error('Error attempting to toggle fullscreen:', err);
+        }
     });
 
 // Begin button
@@ -938,25 +1045,25 @@ this.querySelector("#nextBtn").onclick = () => {
       const phoneField = this.querySelector("#Phone");
 
       if (!this.validateEmail(emailField.value)) {
-        alert("Please enter a valid email address");
-        emailField.classList.add('field-error');
-        return;
-      }
+    emailField.classList.add('field-error');
+    this.showPopup('Please enter a valid email address');
+    return;
+}
 
       if (!this.validatePhoneNumber(phoneField.value)) {
-        alert("Please enter a valid phone number");
-        phoneField.classList.add('field-error');
-        return;
-      }
+    phoneField.classList.add('field-error');
+    this.showPopup('Please enter a valid phone number');
+    return;
+}
       this.showPage(3); // Go to Room Selection page
       this.currentPage = 3; // Update currentPage
       break;
 
     case 3: // Room Selection
-      if (!this.quoteData.Room) {
-        alert("Please select a room first.");
+    if (!this.quoteData.Room) {
+        this.showPopup("Please select a room first.");
         return;
-      }
+    }
 
       if (this.quoteData.Room === 'Other Spaces') {
         this.quoteData.StyleSelection = 'Custom'; // Set default style
@@ -972,10 +1079,10 @@ this.querySelector("#nextBtn").onclick = () => {
       break;
 
     case 4: // Style Selection
-      if (!this.validateStyleSelection()) {
-        alert("Please select a style first.");
+    if (!this.validateStyleSelection()) {
+        this.showPopup("Please select a style first.");
         return;
-      }
+    }
       this.renderDimensionsPage();
       this.showPage(5); // Go to dimensions page
       this.currentPage = 5; // Update currentPage
@@ -999,6 +1106,13 @@ case 6: // Review
   }
 };
 
+// Close popup when clicking overlay
+    const overlay = this.querySelector('.popup-overlay');
+    overlay.addEventListener('click', () => {
+        this.querySelector('.custom-popup').style.display = 'none';
+        overlay.style.display = 'none';
+    });
+
  // Reset form button
     this.querySelector("#resetFormBtn").onclick = () => {
       if (confirm("Are you sure you want to reset the form? All entered data will be lost.")) {
@@ -1011,6 +1125,19 @@ case 6: // Review
     this.resetForm();
     this.showPage(1);
   };
+
+// Fullscreen button event listener
+    this.fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            this.requestFullscreen().then(() => {
+                this.classList.add('fullscreen');
+                this.fullscreenBtn.textContent = 'Exit Fullscreen';
+            });
+        } else {
+            document.exitFullscreen();
+            this.fullscreenBtn.textContent = 'Enter Fullscreen';
+        }
+    });
 
     // Room selection
     const roomOptions = this.querySelectorAll(".room-option");
@@ -1083,23 +1210,43 @@ if (zipInput) {
     zipInput.addEventListener('input', (e) => {
         // Sanitize input (remove non-digits, limit to 5)
         e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
-    });
-
-    zipInput.addEventListener('blur', () => { // Validate on blur
-        console.log("Blur event fired on Zip input"); // Debug log
-        if (zipInput.value.length === 5) {
-            console.log("Zip code is valid:", zipInput.value); // Debug log
-            zipInput.setCustomValidity('');
+        
+        // Validate immediately
+        if (e.target.value.length === 5) {
             zipInput.classList.remove('field-error');
+            zipInput.classList.add('field-valid');
+            zipInput.setCustomValidity('');
             this.quoteData.Zip = zipInput.value;
             this.saveFormData();
         } else {
-            console.log("Zip code is invalid:", zipInput.value); // Debug log
-            zipInput.setCustomValidity('Please enter a valid 5-digit zip code');
+            // Add this else block to handle invalid/empty state
             zipInput.classList.add('field-error');
+            zipInput.classList.remove('field-valid');
+            zipInput.setCustomValidity('Please enter a valid 5-digit zip code');
         }
     });
 
+    // Update blur event handler
+    zipInput.addEventListener('blur', () => {
+        if (!zipInput.value || zipInput.value.length !== 5) {
+            zipInput.classList.add('field-error');
+            zipInput.classList.remove('field-valid');
+            if (!zipInput.value) {
+                this.showPopup('ZIP code is required');
+            } else {
+                this.showPopup('Please enter a valid 5-digit zip code');
+            }
+        }
+    });
+
+    // Add this to handle initial state and when field is cleared
+    zipInput.addEventListener('change', () => {
+        if (!zipInput.value) {
+            zipInput.classList.add('field-error');
+            zipInput.classList.remove('field-valid');
+        }
+    });
+}
 
 // In your initializeEventListeners method, add save calls:
 emailInput?.addEventListener("input", () => {
@@ -1124,7 +1271,7 @@ phoneInput?.addEventListener("input", () => {
   }
        });
     }
-  }
+  
 
 // Also add this helper method to collect dimensions
 collectDimensions() {
