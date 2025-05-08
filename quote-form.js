@@ -193,7 +193,7 @@ validatePhoneNumber(phone) {
     if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://github.com/Paulenski205/gentry-wix/blob/6b5c0a49146e406e7c7bd0b271f128334d583680/wix-form-styles.css";
+      link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@24c72d0e04bf8dfc3c2d6be3a9da9cce45531f64/wix-form-styles.css";
       document.head.appendChild(link);
     }
 
