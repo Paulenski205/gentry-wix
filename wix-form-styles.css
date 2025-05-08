@@ -513,8 +513,15 @@
 
 /* Specific styles for Zip input to match others */
 .form-group input[type="text"]#Zip {
-  background-color: var(--text-light); /* Match other inputs */
-  color: var(--text-dark);             /* Match other inputs */
+    background-color: var(--text-light);
+    color: var(--text-dark);
+    border: 1px solid #ccc;
+}
+
+/* Error state */
+.form-group input[type="text"]#Zip.field-error {
+    border-color: var(--error-color) !important;
+    background-color: rgba(255, 68, 68, 0.05) !important;
 }
 
 /* Required field indicator */
@@ -547,6 +554,12 @@
 
 /* Valid field state */
 .field-valid {
+    border-color: #ccc !important;
+    background-color: var(--text-light) !important;
+}
+
+/* Override for valid state to ensure it takes precedence */
+.form-group input[type="text"]#Zip:not(.field-error).field-valid {
     border-color: #ccc !important;
     background-color: var(--text-light) !important;
 }
