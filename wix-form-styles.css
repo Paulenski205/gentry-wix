@@ -386,17 +386,8 @@
   text-align: center;
 }
 
-/* Add this to your CSS */
-.style-grid.field-error {
-  border: 2px solid var(--error-color);
-  border-radius: var(--border-radius);
-  padding: 10px;
-  background-color: rgba(255, 68, 68, 0.05);
-}
-
 /* Add a required note for style selection */
 .style-selection-required {
-  color: var(--error-color);
   font-size: 0.875rem;
   margin-top: 10px;
   text-align: center;
@@ -537,43 +528,47 @@
   content: none;
 }
 
-.form-group input[type="text"]#Zip:invalid {
-  color: var(--text-dark) !important; /* Ensure text is visible even when invalid */
-  opacity: 1 !important; /* Ensure opacity is not reduced */
-}
-
-/* Validation and Error Styles */
-.field-error {
-  color: var(--error-color);
-  font-size: 0.875rem;
-  margin-top: var(--spacing-unit);
-  padding: var(--spacing-unit);
-  border-radius: var(--border-radius);
-border-color: var(--error-color) !important;
-  background-color: rgba(255, 68, 68, 0.05) !important;
-}
-
-input.field-error {
-  border-color: var(--error-color) !important;
-  background-color: rgba(255, 68, 68, 0.05) !important;
-}
-
-/* Target the specific Zip input in a valid state */
+/* Add these CSS rules */
 .form-group input[type="text"]#Zip:valid {
-    border-color: #fff !important; /* Or your desired valid border color */
-    background-color: var(--text-light); /* Match other inputs */
+    border-color: #ccc;
+    background-color: var(--text-light);
 }
 
-/* Remove any invalid styles when the input is valid */
-input[type="text"]#Zip:valid.field-error {
-  border-color: #ccc !important;
-  background-color: var(--text-light) !important;
+.form-group input[type="text"]#Zip.field-error:valid {
+    border-color: #ccc !important;
+    background-color: var(--text-light) !important;
 }
 
-.form-group input:invalid,
-.form-group select:invalid {
-  border-color: var(--error-color);
+/* Override any conflicting error states when valid */
+.form-group input[type="text"]#Zip:valid:not(.field-error) {
+    border-color: #ccc !important;
+    background-color: var(--text-light) !important;
 }
+
+/* Valid field state */
+.field-valid {
+    border-color: #ccc !important;
+    background-color: var(--text-light) !important;
+}
+
+/* Specific styling for ZIP input when valid */
+.form-group input[type="text"]#Zip:not(.field-error) {
+    border-color: #ccc !important;
+    background-color: var(--text-light) !important;
+}
+
+/* Override error state when input is valid */
+.form-group input[type="text"]#Zip.field-valid {
+    border-color: #ccc !important;
+    background-color: var(--text-light) !important;
+}
+
+/* Optional: Add subtle success indicator */
+.field-valid:not(:focus) {
+    border-color: var(--success-color) !important;
+    background-color: rgba(0, 200, 81, 0.05) !important;
+}
+
 
 /* Focus States */
 input:focus,
@@ -913,25 +908,92 @@ textarea:focus {
     flex-basis: 100%; /* Ensure note occupies full width on smaller screens */
 }
 
-#fullscreenBtn {
+#fullscreenBtn,
+#exitFullscreenBtn {
     position: absolute;
     top: 10px;
     right: 10px;
-    z-index: 1001;
-    /* ... other button styles (background, color, border, etc.) ... */
-}
-
-#exitFullscreenBtn {
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    border: none;
     padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
+    z-index: 10000;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+}
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    display: none;
+}
+
+.custom-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--background-dark);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    z-index: 1001;
+    display: none;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.popup-content {
+    text-align: center;
+    color: var(--text-light);
+}
+
+.popup-content h3 {
+    margin: 0 0 15px 0;
+    color: var(--text-light);
+}
+
+.popup-content p {
+    margin: 0 0 20px 0;
+    color: var(--text-light);
+}
+
+.popup-close {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+    padding: 10px 30px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.popup-close:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Hide fullscreen button on desktop */
+@media (min-width: 769px) {
+    #fullscreenBtn {
+        display: none !important;
+    }
 }
 
 /* Responsive Design - Consolidated */
 @media (max-width: 768px) {
+ #fullscreenBtn {
+        display: block;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1001;
+    }
+
 #exitFullscreenBtn {
     background-color: rgba(0, 0, 0, 0.5);
     color: white;
@@ -941,18 +1003,19 @@ textarea:focus {
     cursor: pointer;
 }
 
+
 .quote-form-container.fullscreen {
-        width: 100vw;
-        height: 100vh;
-        margin: 0;
-        border-radius: 0;
-        box-shadow: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        overflow: hidden; /* Prevent scrolling on the body */
-z-index: 1000;
-    }
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    background-color: var(--background-dark);
+    z-index: 9999;
+}
 
   .quote-form-container.fullscreen .form-body {
         height: calc(100vh - 60px); /* Adjust for navbar */
