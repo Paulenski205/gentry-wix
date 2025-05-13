@@ -70,6 +70,17 @@
   text-decoration: underline;
 }
 
+quote-form[submitting] .form-content {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+quote-form[submitting] #nextBtn {
+    background-color: var(--primary-color);
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
 .nav-buttons {
   display: flex;
   gap: 10px;
@@ -518,8 +529,14 @@
     border: 1px solid #ccc;
 }
 
+.form-group input[type="text"]#Zip:invalid {
+    color: var(--text-light) !important;
+    opacity: 1 !important;
+}
+
 /* Error state */
 .form-group input[type="text"]#Zip.field-error {
+color: var (--text-light) !important;
     border-color: var(--error-color) !important;
     background-color: rgba(255, 68, 68, 0.05) !important;
 }
@@ -560,12 +577,14 @@
 
 /* Override for valid state to ensure it takes precedence */
 .form-group input[type="text"]#Zip:not(.field-error).field-valid {
+color: var(--text-dark) !important;
     border-color: #ccc !important;
     background-color: var(--text-light) !important;
 }
 
 /* Specific styling for ZIP input when valid */
 .form-group input[type="text"]#Zip:not(.field-error) {
+    color: var(--text-light);
     border-color: #ccc !important;
     background-color: var(--text-light) !important;
 }
@@ -576,12 +595,12 @@
     background-color: var(--text-light) !important;
 }
 
-/* Optional: Add subtle success indicator */
-.field-valid:not(:focus) {
-    border-color: var(--success-color) !important;
-    background-color: rgba(0, 200, 81, 0.05) !important;
+#Zip.field-valid,
+#Email.field-valid,
+#Phone.field-valid {
+    border-color: #ccc !important; /* Or your desired default border color */
+    background-color: var(--text-light) !important; /* Or your desired default background color */
 }
-
 
 /* Focus States */
 input:focus,
@@ -691,17 +710,39 @@ button:focus {
 .form-group input:focus::placeholder {
   color: #ccc;
 }
-/* Error state for inputs */
-.field-error {
-  border-color: var(--error-color) !important;
-  background-color: rgba(255, 68, 68, 0.05) !important;
+
+/* More specific field-error styles */
+.form-group input.field-error,
+.form-group select.field-error,
+.form-group textarea.field-error {
+color: var(--text-light);
+    border-color: var(--error-color) !important;
+    background-color: rgba(255, 68, 68, 0.05) !important;
 }
 
-/* Valid state */
+/* Default styles for inputs (make sure these exist) */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    border: 1px solid #ccc; /* Or your desired default border */
+    background-color: #fff; /* Or your desired default background */
+    color: var(--text-dark); /* Or your desired default text color */
+    /* ... other default styles ... */
+}
+
+/* Valid input styles (no !important needed) */
 .form-group input:valid,
 .form-group select:valid {
-  border-color: #ccc; /* Or your desired valid border color */
-  background-color: var(--text-light); /* Match other inputs */
+    border-color: #ccc; /* Or your desired valid border color */
+    background-color: var(--text-light); /* Or your desired valid background color */
+}
+
+/* Valid and NOT field-error (to override) */
+.form-group input:valid:not(.field-error),
+.form-group select:valid:not(.field-error) {
+    border-color: #ccc; /* Or your desired valid border color */
+    background-color: var(--text-light); /* Or your desired valid background color */
+    color: var(--text-dark); /* Or your desired default text color */
 }
 
 /* Focus state */
