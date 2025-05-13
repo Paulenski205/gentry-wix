@@ -529,11 +529,6 @@ quote-form[submitting] #nextBtn {
     border: 1px solid #ccc;
 }
 
-.form-group input[type="text"]#Zip:invalid {
-    color: var(--text-light) !important;
-    opacity: 1 !important;
-}
-
 /* Error state */
 .form-group input[type="text"]#Zip.field-error {
 color: var (--text-light) !important;
