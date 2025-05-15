@@ -815,7 +815,6 @@ renderDimensionsPage(selectedRoom) {
                 this.page5.className = 'form-page';
                 formBody.appendChild(this.page5);
             }
-
             const dimensionsTemplate = selectedRoom === 'Other Spaces' ? this.getOtherSpacesDimensionsTemplate() : this.getDimensionsTemplate();
             this.page5.innerHTML = this.getDimensionsPageTemplate(dimensionsTemplate); // Use this.page5
 
@@ -824,6 +823,7 @@ renderDimensionsPage(selectedRoom) {
             if (this.isMobile()) {
                 this.adjustFormHeight();
             }
+this.page5 = page5;
             resolve();
         } catch (error) {
             reject(error);
@@ -952,18 +952,32 @@ renderReviewPage() {
                 .filter(([key]) => key !== 'roomName')
                 .some(([key, value]) => value !== undefined && value !== '');
 
-            const dimensionsHtml = hasDimensions ? Object.entries(dimensions)
-                .filter(([key]) => key !== 'roomName')
-                .map(([key, value]) => `
-                    <div class="review-item">
-                        <span class="review-label">${key.charAt(0).toUpperCase() + key.slice(1)}</span>
-                        <span class="review-value">${value} inches</span>
-                    </div>
-                `)
-                .join('') : ''; // Conditional dimensionsHtml
+            // Declare dimensionsHtml only *once*, outside the if/else block
+            let dimensionsHtml = ""; 
+
+            if (this.quoteData.Room === 'Other Spaces') {
+                dimensionsHtml = Object.entries(dimensions)
+                    .filter(([key]) => key !== 'roomName')
+                    .map(([key, value]) => `
+                        <div class="review-item">
+                            <span class="review-label">${key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                            <span class="review-value">${value} inches</span>
+                        </div>
+                    `)
+                    .join('');
+            } else {
+                // Use the same logic as for "Other Spaces" to exclude roomName
+                dimensionsHtml = Object.entries(dimensions)
+                    .filter(([key]) => key !== 'roomName')
+                    .map(([key, value]) => `
+                        <div class="review-item">
+                            <span class="review-label">${key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                            <span class="review-value">${value} inches</span>
+                        </div>
+                    `).join('');
+            }
 
             const hasAdditionalNotes = !!additionalNotes;
-
             page6.innerHTML = this.getReviewPageTemplate(dimensionsHtml, hasDimensions, additionalNotes, hasAdditionalNotes);
 
             if (this.isMobile()) {
@@ -973,7 +987,7 @@ renderReviewPage() {
         } catch (error) {
             console.error("Error rendering review page:", error);
             this.showErrorPopup("An error occurred while rendering the review page. Please try again.");
-            reject(error); // Reject the promise if an error occurs
+            reject(error); // Reject the promise on error
         }
     });
 }
@@ -985,19 +999,21 @@ let roomTypeDisplay = this.quoteData.Room || '';
         roomTypeDisplay = dimensions.roomName || 'Other Space'; // Access the *value* of roomName
     }
 
-    // Conditionally render the dimensions section
-    const dimensionsSection = hasDimensions ? `
+     const dimensionsSection = hasDimensions ? `
         <div class="review-section">
             <h3>Room Dimensions</h3>
             <div class="review-grid dimensions-grid">
                 ${dimensionsHtml}
             </div>
-            ${hasAdditionalNotes ? `  </div> </div>
-                <div class="review-item">
-                    <span class="review-label">Additional Notes</span>
-                    <span class="review-value">${additionalNotes}</span>
-                </div>
-            ` : ''}
+        </div>
+    ` : '';
+
+    const additionalNotesSection = hasAdditionalNotes ? `
+        <div class="review-section">
+            <h3>Additional Notes</h3>
+            <div class="review-item">
+                <span class="review-value">${additionalNotes}</span>
+            </div>
         </div>
     ` : '';
 
@@ -1007,16 +1023,6 @@ let roomTypeDisplay = this.quoteData.Room || '';
         <div class="review-item">
             <span class="review-label">Style Selection</span>
             <span class="review-value">${this.quoteData.StyleSelection}</span>
-        </div>
-    ` : '';
-
-// Define and conditionally create additionalNotesSection *here*
-    const additionalNotesSection = this.quoteData.additionalNotes ? `
-        <div class="review-section">
-            <h3>Additional Notes</h3>
-            <div class="review-item">
-                <span class="review-value">${this.quoteData.additionalNotes}</span>
-            </div>
         </div>
     ` : '';
 
@@ -1062,10 +1068,7 @@ ${this.querySelector('#City')?.value || ''}, ${this.querySelector('#State')?.val
                     </div>
                 </div>
 
-                ${dimensionsSection}
-                ${additionalNotesSection}
-            </div> </div> </div>  </div>  </div>
-        </div>
+                ${dimensionsSection}  ${additionalNotesSection}  </div> </div>
     `;
 }
 	
@@ -1093,8 +1096,9 @@ ${this.querySelector('#City')?.value || ''}, ${this.querySelector('#State')?.val
 
     loadFormData() {
         const savedData = localStorage.getItem('formData');
-        if (savedData) {
-            const formData = JSON.parse(savedData);
+    if (!savedData) return; // Return early if no saved data
+
+    const formData = JSON.parse(savedData);
             
             if (formData.personalInfo) {
                 this.querySelector('#FirstName').value = formData.personalInfo.firstName || '';
@@ -1118,27 +1122,36 @@ ${this.querySelector('#City')?.value || ''}, ${this.querySelector('#State')?.val
                     }
                 }
 
-                if (this.quoteData.dimensions) {
-                    const dimensionsPage = this.querySelector('#page5');
-                    if (dimensionsPage) {
-                        const dimensionInputs = dimensionsPage.querySelectorAll('input[type="number"]');
-                        dimensionInputs.forEach(input => {
-                            if (this.quoteData.dimensions[input.id]) {
-                                input.value = this.quoteData.dimensions[input.id];
-                            }
-                        });
-                    }
-
-                    if (this.quoteData.additionalNotes) {
-                        const notesInput = this.querySelector('#additional-notes');
-                        if (notesInput) {
-                            notesInput.value = this.quoteData.additionalNotes;
-                        }
-                    }
-                }
+                // Check if dimensions or additional notes exist in saved data
+        if (formData.quoteData.dimensions || formData.quoteData.additionalNotes) {
+            if (!this.page5) { // Dimensions page not rendered yet
+                this.renderDimensionsPage(this.quoteData.Room)
+                    .then(() => this.restoreDimensionsAndNotes(formData.quoteData));
+            } else { // Dimensions page already rendered
+                this.restoreDimensionsAndNotes(formData.quoteData);
             }
         }
     }
+}
+
+// Helper function to restore dimensions and additional notes
+restoreDimensionsAndNotes(quoteData) {
+    if (quoteData.dimensions) {
+        for (const [key, value] of Object.entries(quoteData.dimensions)) {
+            const input = this.page5.querySelector(`#${key}`); // Query inside this.page5
+            if (input) {
+                input.value = value;
+            }
+        }
+    }
+
+    if (quoteData.additionalNotes) {
+        const notesInput = this.page5.querySelector('#additional-notes'); // Query inside this.page5
+        if (notesInput) {
+            notesInput.value = quoteData.additionalNotes;
+        }
+    }
+}
 
     clearSavedData() {
         localStorage.removeItem('formData');
@@ -1389,8 +1402,9 @@ initializeDimensionsListeners(page5) {
     });
 
     const notesInput = page5.querySelector('#additional-notes');
+
     this.handleNotesInput = (event) => {
-        this.quoteData.additionalNotes = event.target.value; // Store additional notes in quoteData
+        this.quoteData.additionalNotes = event.target.value;
         this.saveFormData();
     };
 
