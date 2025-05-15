@@ -12,19 +12,6 @@ removePreviousStyleSelection() {
         this.totalPages = 7;
         this.isReady = false;
 
-        // Create the fullscreen toggle button
-        this.fullscreenBtn = this.createFullscreenButton();
-        this.fullscreenBtn.id = 'fullscreenBtn';
-        this.fullscreenBtn.textContent = 'Enter Fullscreen';
-
-        // Initialize exitFullscreenBtn as a class property
-        this.exitFullscreenBtn = this.createExitButton();
-        this.exitFullscreenBtn.id = 'exitFullscreenBtn';
-        this.exitFullscreenBtn.textContent = 'Exit Fullscreen';
-        this.exitFullscreenBtn.style.display = 'none';
-
- // Bind removePreviousStyleSelection
-    this.removePreviousStyleSelection = this.removePreviousStyleSelection.bind(this);
 
  // Define styleOptions
     this.styleOptions = {
@@ -56,6 +43,30 @@ removePreviousStyleSelection() {
     { name: 'Custom', image: 'https://static.wixstatic.com/media/daaed2_004c8db7043b415ab396db727ae336ba~mv2.jpg/v1/fill/w_180,h_161,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Office.jpg' }
   ]
   };
+
+       // THEN create and initialize buttons
+    this.fullscreenBtn = this.createFullscreenButton();
+    this.fullscreenBtn.id = 'fullscreenBtn';
+    this.fullscreenBtn.textContent = 'Enter Fullscreen';
+
+    this.exitFullscreenBtn = this.createExitButton();
+    this.exitFullscreenBtn.id = 'exitFullscreenBtn';
+    this.exitFullscreenBtn.textContent = 'Exit Fullscreen';
+    this.exitFullscreenBtn.style.display = 'none';
+
+    // Bind removePreviousStyleSelection
+    this.removePreviousStyleSelection = this.removePreviousStyleSelection.bind(this);
+
+    // Append buttons to the form container
+    const formContainer = this.querySelector('.quote-form-container');
+    if (formContainer) {
+        formContainer.appendChild(this.fullscreenBtn);
+        formContainer.appendChild(this.exitFullscreenBtn);
+    } else {
+        // Handle the case where the form container is not found (e.g., log an error)
+        console.error("Form container not found. Cannot append fullscreen buttons.");
+    }
+
     }
 
 isMobile() {
@@ -81,19 +92,19 @@ adjustFormHeight() {
 }
 
     setupGlobalEventListeners() {
-        // Store handler references with actual logic
+        // Fullscreen change listener
         this.handleFullscreenChange = () => {
-            if (!document.fullscreenElement) {
-                this.classList.remove('fullscreen');
-                this.exitFullscreenBtn.style.display = 'none';
-                this.fullscreenBtn.style.display = 'block';
-            } else {
+            if (document.fullscreenElement) {
                 this.classList.add('fullscreen');
-                this.exitFullscreenBtn.style.display = 'block';
                 this.fullscreenBtn.style.display = 'none';
+                this.exitFullscreenBtn.style.display = 'block';
+            } else {
+                this.classList.remove('fullscreen');
+                this.fullscreenBtn.style.display = 'block';
+                this.exitFullscreenBtn.style.display = 'none';
             }
         };
-
+        document.addEventListener('fullscreenchange', this.handleFullscreenChange);
         this.handleBeforeUnload = () => this.clearSavedData();
 
 this.handleResize = () => {
@@ -157,7 +168,7 @@ window.addEventListener('resize', this.handleResize);
             if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
                 const link = document.createElement("link");
                 link.rel = "stylesheet";
-                link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@4779b0b1be255d1e31f5adf99fd89265323ca16e/wix-form-styles.css";
+                link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@d3b73da73c9ffa507a7f05c26ab26159f4a8140e/wix-form-styles.css";
                 link.onload = () => resolve();
                 link.onerror = () => reject();
                 document.head.appendChild(link);
@@ -321,40 +332,43 @@ initializeForm() {
         });
     }
 
-    // Helper methods for button creation
-    createFullscreenButton() {
-        const btn = document.createElement('button');
-        btn.id = 'fullscreenBtn';
-        btn.textContent = 'Enter Fullscreen';
-        btn.style.display = 'block';
-        return btn;
-    }
+// Helper methods for button creation
+createFullscreenButton() {
+    const btn = document.createElement('button');
+    btn.id = 'fullscreenBtn';
+    btn.textContent = 'Enter Fullscreen';
+    btn.addEventListener('click', () => this.toggleFullscreen()); // Call toggleFullscreen method
+    return btn;
+}
 
-    createExitButton() {
-        const btn = document.createElement('button');
-        btn.id = 'exitFullscreenBtn';
-        btn.textContent = 'Exit Fullscreen';
-        btn.style.display = 'none';
-        return btn;
-    }
+createExitButton() {
+    const btn = document.createElement('button');
+    btn.id = 'exitFullscreenBtn';
+    btn.textContent = 'Exit Fullscreen';
+    btn.addEventListener('click', () => document.exitFullscreen()); // Simplified
+    btn.style.display = 'none'; // Initially hidden
+    return btn;
+}
 
-    async toggleFullscreen() {
-        try {
-            if (!document.fullscreenElement) {
-                await this.requestFullscreen();
-                this.classList.add('fullscreen');
-                this.exitFullscreenBtn.style.display = 'block';
-                this.fullscreenBtn.style.display = 'none';
-            } else {
-                await document.exitFullscreen();
-                this.classList.remove('fullscreen');
-                this.exitFullscreenBtn.style.display = 'none';
-                this.fullscreenBtn.style.display = 'block';
-            }
-        } catch (err) {
-            console.error('Error attempting to toggle fullscreen:', err);
+// Define toggleFullscreen method:
+async toggleFullscreen() {
+    try {
+        if (!document.fullscreenElement) {
+            await this.requestFullscreen();
+        } else {
+            document.exitFullscreen();
         }
+    } catch (err) {
+        console.error('Error attempting to toggle fullscreen:', err);
+        this.showErrorPopup("An error occurred while toggling fullscreen mode.  Please try again."); // Use your error popup method
     }
+}
+
+showErrorPopup(message) {
+    this.showPopup(message || 'An error occurred.');
+}
+
+
     // Validation Methods
     validateZipCode(value) {
         return /^\d{5}$/.test(value);
@@ -911,64 +925,50 @@ getWallDiagramTemplate() {
 
 renderReviewPage() {
     return new Promise(resolve => {
-        const formBody = this.querySelector('.form-body');
-        if (!formBody) {
-            console.error("Form body not found.");
-            resolve(); // Resolve even if there's an error
-            return;
-        }
+        try { // Add try...catch block for error handling
+            const formBody = this.querySelector('.form-body');
+            if (!formBody) {
+                throw new Error("Form body not found."); // Throw error to be caught
+            }
 
+            let page6 = this.querySelector('#page6');
+            if (!page6) {
+                page6 = document.createElement('div');
+                page6.id = 'page6';
+                page6.className = 'form-page';
+                formBody.appendChild(page6);
+            }
 
-        let page6 = this.querySelector('#page6');
-        if (!page6) {
-            page6 = document.createElement('div');
-            page6.id = 'page6';
-            page6.className = 'form-page';
-            formBody.appendChild(page6); // Append to formBody
-        }
+            const dimensions = this.quoteData.dimensions || {};
+            const additionalNotes = this.quoteData.additionalNotes;
 
- let dimensionsHtml = "";
-  let hasDimensions = false;
+            const hasDimensions = Object.entries(dimensions)
+                .filter(([key]) => key !== 'roomName')
+                .some(([key, value]) => value !== undefined && value !== '');
 
-  const dimensions = this.quoteData.dimensions || {};
-
-       // Check for ANY dimensions (excluding roomName for ALL room types)
-        hasDimensions = Object.entries(dimensions)
-            .filter(([key]) => key !== 'roomName') // Filter out roomName *before* checking
-            .some(([key, value]) => value !== undefined && value !== ''); // Check for non-empty values
-
-        if (this.quoteData.Room === 'Other Spaces') {
-            dimensionsHtml = Object.entries(dimensions)
-                .filter(([key]) => key !== 'roomName') // Exclude roomName from display
+            const dimensionsHtml = hasDimensions ? Object.entries(dimensions)
+                .filter(([key]) => key !== 'roomName')
                 .map(([key, value]) => `
                     <div class="review-item">
                         <span class="review-label">${key.charAt(0).toUpperCase() + key.slice(1)}</span>
                         <span class="review-value">${value} inches</span>
                     </div>
                 `)
-                .join('');
-        } else {
-            // For other room types (use the same dimensionsHtml generation logic as above, excluding roomName)
-            dimensionsHtml = Object.entries(dimensions)
-                .filter(([key]) => key !== 'roomName') // Exclude roomName from display
-                .map(([key, value]) => `
-                    <div class="review-item">
-                        <span class="review-label">${key.charAt(0).toUpperCase() + key.slice(1)}</span>
-                        <span class="review-value">${value} inches</span>
-                    </div>
-                `).join('');
+                .join('') : ''; // Conditional dimensionsHtml
+
+            const hasAdditionalNotes = !!additionalNotes;
+
+            page6.innerHTML = this.getReviewPageTemplate(dimensionsHtml, hasDimensions, additionalNotes, hasAdditionalNotes);
+
+            if (this.isMobile()) {
+                this.adjustFormHeight();
+            }
+            resolve();
+        } catch (error) {
+            console.error("Error rendering review page:", error);
+            this.showErrorPopup("An error occurred while rendering the review page. Please try again.");
+            reject(error); // Reject the promise if an error occurs
         }
-
-        // Get additional notes (if any)
-        const additionalNotes = this.quoteData.additionalNotes;
-        const hasAdditionalNotes = !!additionalNotes; // Check if additionalNotes is not empty
-
-        page6.innerHTML = this.getReviewPageTemplate(dimensionsHtml, hasDimensions, additionalNotes, hasAdditionalNotes);
-
-        if (this.isMobile()) {
-            this.adjustFormHeight();
-        }
-        resolve();
     });
 }
 
@@ -1439,7 +1439,7 @@ collectDimensions() {
         const wallCInput = this.querySelector('#wallC');
         const wallDInput = this.querySelector('#wallD');
         const ceilingInput = this.querySelector('#ceiling');
-        const roomNameInput = this.querySelector('#roomName'); // Or #roomName
+        const roomNameInput = this.querySelector('#roomName');
 
         // Now you can use these variables in the validation logic below
 
@@ -1525,6 +1525,8 @@ disconnectedCallback() {
     // Remove fullscreen and exit fullscreen buttons
     if (this.fullscreenBtn) this.fullscreenBtn.remove();
     if (this.exitFullscreenBtn) this.exitFullscreenBtn.remove();
+ // Remove fullscreen change listener
+    document.removeEventListener('fullscreenchange', this.handleFullscreenChange);
 }
 
     initializePopupListeners() {
@@ -1571,7 +1573,7 @@ async handleNextButtonClick() {
                     this.showErrorPopup("Please select a room first.");
                     return;
                 }
-                const selectedRoom = selectedRoomOption.dataset.room;
+                this.quoteData.Room = selectedRoom;
 
                 if (selectedRoom === 'Other Spaces') {
                     await this.renderDimensionsPage(selectedRoom);
@@ -1582,7 +1584,7 @@ async handleNextButtonClick() {
                     this.showPage(4);
                     this.currentPage = 4;
                 }
-                this.quoteData.Room = selectedRoom; // Set Room *after* showPage call
+                
                 break; // Add break to prevent fallthrough
 
             case 4: // Style Selection
