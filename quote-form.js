@@ -57,15 +57,7 @@ removePreviousStyleSelection() {
     // Bind removePreviousStyleSelection
     this.removePreviousStyleSelection = this.removePreviousStyleSelection.bind(this);
 
-    // Append buttons to the form container
-    const formContainer = this.querySelector('.quote-form-container');
-    if (formContainer) {
-        formContainer.appendChild(this.fullscreenBtn);
-        formContainer.appendChild(this.exitFullscreenBtn);
-    } else {
-        // Handle the case where the form container is not found (e.g., log an error)
-        console.error("Form container not found. Cannot append fullscreen buttons.");
-    }
+    
 
     }
 
@@ -184,6 +176,17 @@ this.handleResize = () => {
         }
     };
     window.addEventListener('resize', this.handleResize);
+
+
+// Append buttons to the form container
+    const formContainer = this.querySelector('.quote-form-container');
+    if (formContainer) {
+        formContainer.appendChild(this.fullscreenBtn);
+        formContainer.appendChild(this.exitFullscreenBtn);
+    } else {
+        // Handle the case where the form container is not found (e.g., log an error)
+        console.error("Form container not found. Cannot append fullscreen buttons.");
+    }
 
         // Initialize the form when everything is ready
         Promise.all([loadStylesheet, document.fonts.ready])
@@ -1449,7 +1452,6 @@ collectDimensions() {
         isValid = this.validateAndCollectDimension(wallCInput, 'wallC') && isValid;
         isValid = this.validateAndCollectDimension(wallDInput, 'wallD') && isValid;
         isValid = this.validateAndCollectDimension(ceilingInput, 'ceiling') && isValid;
-        isValid = this.validateAndCollectDimension(roomNameInput, 'roomName') && isValid;
 
         // Get and store the custom location (even if empty)
         this.quoteData.dimensions.roomName = roomNameInput?.value || '';
