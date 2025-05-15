@@ -57,8 +57,6 @@ removePreviousStyleSelection() {
     // Bind removePreviousStyleSelection
     this.removePreviousStyleSelection = this.removePreviousStyleSelection.bind(this);
 
-    
-
     }
 
 isMobile() {
@@ -160,7 +158,7 @@ window.addEventListener('resize', this.handleResize);
             if (!document.querySelector('link[href*="wix-form-styles.css"]')) {
                 const link = document.createElement("link");
                 link.rel = "stylesheet";
-                link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@d3b73da73c9ffa507a7f05c26ab26159f4a8140e/wix-form-styles.css";
+                link.href = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@3a021bb8e22228b10d95735ca914605668b0d038/wix-form-styles.css";
                 link.onload = () => resolve();
                 link.onerror = () => reject();
                 document.head.appendChild(link);
@@ -168,6 +166,16 @@ window.addEventListener('resize', this.handleResize);
                 resolve();
             }
         });
+
+ // Append buttons to the form container
+    const formContainer = this.querySelector('.quote-form-container');
+    if (formContainer) {
+        formContainer.appendChild(this.fullscreenBtn);
+        formContainer.appendChild(this.exitFullscreenBtn);
+    } else {
+        // Handle the case where the form container is not found (e.g., log an error)
+        console.error("Form container not found. Cannot append fullscreen buttons.");
+    }
 
 this.handleResize = () => {
         if (this.isMobile()) {
@@ -177,16 +185,6 @@ this.handleResize = () => {
     };
     window.addEventListener('resize', this.handleResize);
 
-
-// Append buttons to the form container
-    const formContainer = this.querySelector('.quote-form-container');
-    if (formContainer) {
-        formContainer.appendChild(this.fullscreenBtn);
-        formContainer.appendChild(this.exitFullscreenBtn);
-    } else {
-        // Handle the case where the form container is not found (e.g., log an error)
-        console.error("Form container not found. Cannot append fullscreen buttons.");
-    }
 
         // Initialize the form when everything is ready
         Promise.all([loadStylesheet, document.fonts.ready])
@@ -601,7 +599,8 @@ getPage3Template() {
 
 renderStyleSelectionPage(selectedRoom) {
     return new Promise((resolve, reject) => { // Add reject for error handling
-        const formBody = this.querySelector('.form-body');
+      try {
+  const formBody = this.querySelector('.form-body');
         if (!formBody) {
             reject(new Error("Form body not found.")); // Reject the promise if formBody is not found
             return;
@@ -623,7 +622,12 @@ renderStyleSelectionPage(selectedRoom) {
         if (this.isMobile()) {
             this.adjustFormHeight();
         }
-        resolve();
+resolve(); // Resolve the promise *here*, after successful rendering
+        } catch (error) {
+            console.error("Error rendering style selection page:", error); // Log the error
+            this.showErrorPopup("An error occurred while rendering the style selection page. Please try again.");
+            reject(error); // Reject the promise if an error occurs
+        }
     });
 }
 
@@ -797,33 +801,32 @@ page5 = null;
 
 renderDimensionsPage(selectedRoom) {
     return new Promise((resolve, reject) => {
-        const formBody = this.querySelector('.form-body');
-        if (!formBody) {
-            reject(new Error("Form body not found."));
-            return;
-        }
+        try {
+            const formBody = this.querySelector('.form-body');
+            if (!formBody) {
+                throw new Error("Form body not found.");
+            }
 
-        let page5 = this.querySelector('#page5');
-        if (!page5) {
-            page5 = document.createElement('div');
-            page5.id = 'page5';
-            page5.className = 'form-page';
-            formBody.appendChild(page5);
-        }
-try {
-        const dimensionsTemplate = (selectedRoom === 'Other Spaces')
-            ? this.getOtherSpacesDimensionsTemplate()
-            : this.getDimensionsTemplate();
+       // Use this.page5 to store the element
+            this.page5 = this.querySelector('#page5'); // Try to get existing element
+            if (!this.page5) {
+                this.page5 = document.createElement('div'); // Create if it doesn't exist
+                this.page5.id = 'page5';
+                this.page5.className = 'form-page';
+                formBody.appendChild(this.page5);
+            }
 
-        page5.innerHTML = this.getDimensionsPageTemplate(dimensionsTemplate);
-        this.initializeDimensionsListeners(page5);
+            const dimensionsTemplate = selectedRoom === 'Other Spaces' ? this.getOtherSpacesDimensionsTemplate() : this.getDimensionsTemplate();
+            this.page5.innerHTML = this.getDimensionsPageTemplate(dimensionsTemplate); // Use this.page5
 
-        if (this.isMobile()) {
-            this.adjustFormHeight();
-        }
-        resolve(); // Resolve after all operations are complete
-    } catch (error) {
-            reject(error); // Reject if any error occurs during setup
+            this.initializeDimensionsListeners(); // No need to pass page5
+
+            if (this.isMobile()) {
+                this.adjustFormHeight();
+            }
+            resolve();
+        } catch (error) {
+            reject(error);
         }
     });
 }
@@ -1400,16 +1403,17 @@ initializeDimensionsListeners(page5) {
     }
 }
 
+// initializeDimensionsListeners (using this.page5):
 initializeDimensionsListeners() {
-        if (!this.page5) { // Check if this.page5 exists
-            console.error('Dimensions page not found');
-            return;
-        }
-
-        // Use this.page5 to access the element
-        const dimensionInputs = this.page5.querySelectorAll('input[type="number"]');
-        // ... (rest of your listener logic)
+    if (!this.page5) {
+        console.error('Dimensions page not found');
+        return;
     }
+
+    // Use this.page5 to access elements
+    const dimensionInputs = this.page5.querySelectorAll('input[type="number"]');
+    // ... rest of your listener logic
+}
 
 // Helper function to validate and collect a single dimension
 validateAndCollectDimension(input, key) {
@@ -1436,37 +1440,32 @@ collectDimensions() {
     let isValid = true;
 
     if (this.quoteData.Room === 'Other Spaces') {
-        // Query for input elements *inside* the "Other Spaces" block
         const wallAInput = this.querySelector('#wallA');
         const wallBInput = this.querySelector('#wallB');
         const wallCInput = this.querySelector('#wallC');
         const wallDInput = this.querySelector('#wallD');
         const ceilingInput = this.querySelector('#ceiling');
-        const roomNameInput = this.querySelector('#roomName');
+        const roomNameInput = this.querySelector('#roomName'); // Or #customlocation
 
-        // Now you can use these variables in the validation logic below
+        // Validate dimensions (optional fields) - number inputs only
+        isValid = this.validateNumberInput(wallAInput) && isValid; // Use helper function for number inputs
+        isValid = this.validateNumberInput(wallBInput) && isValid;
+        isValid = this.validateNumberInput(wallCInput) && isValid;
+        isValid = this.validateNumberInput(wallDInput) && isValid;
+        isValid = this.validateNumberInput(ceilingInput) && isValid;
 
-        // Validate dimensions (optional fields)
-        isValid = this.validateAndCollectDimension(wallAInput, 'wallA') && isValid;
-        isValid = this.validateAndCollectDimension(wallBInput, 'wallB') && isValid;
-        isValid = this.validateAndCollectDimension(wallCInput, 'wallC') && isValid;
-        isValid = this.validateAndCollectDimension(wallDInput, 'wallD') && isValid;
-        isValid = this.validateAndCollectDimension(ceilingInput, 'ceiling') && isValid;
-
-        // Get and store the custom location (even if empty)
+        // Store roomName (no validation needed if it's optional)
         this.quoteData.dimensions.roomName = roomNameInput?.value || '';
 
-        if (!isValid) {
-            this.showErrorPopup("Please enter valid dimensions for Other Spaces. Values must be greater than zero if entered.");
+        if (!isValid) { // Check only number input validity
+            this.showErrorPopup("Please enter valid dimensions for Other Spaces.  Values must be greater than zero if entered.");
             return false;
         }
     } else { // For other room types
-        let isValidDimensions = true; // Track dimensions validity separately
+        // Use the same validation logic as for "Other Spaces"
+        let isValidDimensions = true;
         const inputs = this.querySelectorAll('#page5 input[type="number"]');
-
-        inputs.forEach(input => {
-            isValidDimensions = this.validateAndCollectDimension(input, input.id) && isValidDimensions;
-        });
+        inputs.forEach(input => isValidDimensions = this.validateNumberInput(input) && isValidDimensions); // Use helper function
 
         if (!isValidDimensions) {
             this.showErrorPopup("Please enter valid dimensions. Values must be greater than zero if entered.");
@@ -1479,8 +1478,21 @@ collectDimensions() {
     return true;
 }
 
-showErrorPopup(message) {
-    this.showPopup(message || 'An error occurred.');
+// Helper function to validate number inputs
+validateNumberInput(input) {
+    if (!input) return false; // Handle missing input
+
+    if (input.value.trim() !== '') { // Only validate if a value is entered
+        const value = parseFloat(input.value);
+        if (isNaN(value) || value <= 0) {
+            input.classList.add('field-error');
+            return false;
+        } else {
+            this.quoteData.dimensions[input.id] = value; // Store the value
+            input.classList.remove('field-error');
+        }
+    }
+    return true; // Return true if valid or empty
 }
 
 disconnectedCallback() {
@@ -1489,62 +1501,42 @@ disconnectedCallback() {
     window.removeEventListener('beforeunload', this.handleBeforeUnload);
     window.removeEventListener('resize', this.handleResize);
 
-    // Clean up dynamic page listeners
-    const page4 = this.querySelector('#page4');
-    if (page4) {
-        page4.querySelectorAll('.style-option').forEach(element => {
-            element.removeEventListener('click', this.handleStyleSelection);
-        });
-        page4.remove(); // Remove the page itself
-    }
+    // Remove event listeners and elements for dynamically created pages
+    this.removeDynamicPage('#page4', this.handleStyleSelection, '.style-option');
+    this.removeDynamicPage('#page5', this.handleDimensionInput, 'input[type="number"]');
+    this.removeDynamicPage('#page6'); // No specific listeners for page6
+    this.removeDynamicPage('#page7'); // No specific listeners for page7
 
-    const page5 = this.querySelector('#page5');
-    if (page5) {
-        page5.querySelectorAll('input[type="number"]').forEach(input => {
-            input.removeEventListener('input', this.handleDimensionInput);
-        });
-        const notesInput = page5.querySelector('#additional-notes');
-        if (notesInput) {
-            notesInput.removeEventListener('input', this.handleNotesInput);
-        }
-        page5.remove(); // Remove the page itself
-    }
-
-// Remove dynamically added pages
-    ['#page4', '#page5', '#page6', '#page7'].forEach(selector => {
-        const page = this.querySelector(selector);
-        if (page) page.remove();
-    });
-
-    // Clean up other form listeners (if used)
-    // Make sure these handlers are defined and added elsewhere
-    const inputs = this.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-        if (this.handleInput) input.removeEventListener('input', this.handleInput);
-        if (this.handleChange) input.removeEventListener('change', this.handleChange);
-    });
-
-    // Remove fullscreen and exit fullscreen buttons
-    if (this.fullscreenBtn) this.fullscreenBtn.remove();
-    if (this.exitFullscreenBtn) this.exitFullscreenBtn.remove();
- // Remove fullscreen change listener
-    document.removeEventListener('fullscreenchange', this.handleFullscreenChange);
+    // Remove fullscreen buttons (no need for if statement since they are class properties)
+    this.fullscreenBtn.remove();
+    this.exitFullscreenBtn.remove();
 }
 
-    initializePopupListeners() {
-        const overlay = this.querySelector('.popup-overlay');
-        overlay.addEventListener('click', () => {
-            this.querySelector('.custom-popup').style.display = 'none';
-            overlay.style.display = 'none';
+// Helper function to remove a dynamic page and its listeners
+removeDynamicPage(selector, eventHandler = null, subSelector = null) { // Default parameters
+    const page = this.querySelector(selector);
+    if (!page) return; // Return early if page not found
+
+    if (eventHandler && subSelector) {
+        page.querySelectorAll(subSelector).forEach(element => {
+            element.removeEventListener('click', eventHandler); // Or appropriate event type
         });
+
+        // Remove additional notes listener if on dimensions page
+        if (selector === '#page5') {
+            const notesInput = page.querySelector('#additional-notes');
+            if (notesInput) {
+                notesInput.removeEventListener('input', this.handleNotesInput);
+            }
+        }
     }
+    page.remove(); // Remove the page element
+}
 
 async handleNextButtonClick() {
     try {
-// Get selectedRoomOption ONLY IF on the room selection page
         const selectedRoomOption = this.currentPage === 3 ? this.querySelector('.room-option.selected') : null;
-        const selectedRoom = selectedRoomOption?.dataset.room; // Use optional chaining
-
+        const selectedRoom = selectedRoomOption?.dataset.room;
 
         switch (this.currentPage) {
             case 1: // Welcome Page
@@ -1575,18 +1567,18 @@ async handleNextButtonClick() {
                     this.showErrorPopup("Please select a room first.");
                     return;
                 }
-                this.quoteData.Room = selectedRoom;
+
+                this.quoteData.Room = selectedRoom; // Set Room *before* rendering
 
                 if (selectedRoom === 'Other Spaces') {
                     await this.renderDimensionsPage(selectedRoom);
                     this.showPage(5);
-                    this.currentPage = 5;
+                    this.currentPage = 5; // Update currentPage *after* showPage
                 } else {
                     await this.renderStyleSelectionPage(selectedRoom);
                     this.showPage(4);
-                    this.currentPage = 4;
+                    this.currentPage = 4; // Update currentPage *after* showPage
                 }
-                
                 break; // Add break to prevent fallthrough
 
             case 4: // Style Selection
