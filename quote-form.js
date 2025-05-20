@@ -1005,8 +1005,14 @@ let roomTypeDisplay = this.quoteData.Room || '';
             <div class="review-grid dimensions-grid">
                 ${dimensionsHtml}
             </div>
-        </div>
-    ` : '';
+            ${hasAdditionalNotes ? `
+                <div class="review-item">
+                    <span class="review-label">Additional Notes</span>
+                    <span class="review-value">${additionalNotes}</span>
+                </div>
+            ` : ''}
+        </div>  </div> </div>
+    ` : ''; // Close dimensions-grid, review-section if hasDimensions
 
     const additionalNotesSection = hasAdditionalNotes ? `
         <div class="review-section">
@@ -1016,7 +1022,6 @@ let roomTypeDisplay = this.quoteData.Room || '';
             </div>
         </div>
     ` : '';
-
 
     // Conditionally render Style Selection ONLY if it's set and not "Other Spaces"
     const styleSelectionSection = this.quoteData.StyleSelection && this.quoteData.Room !== 'Other Spaces' ? `
@@ -1029,35 +1034,35 @@ let roomTypeDisplay = this.quoteData.Room || '';
 
     return `
         <h2>Review Your Information</h2>
-<div class="form-content review-content">
-<div class="review-sections-grid">
-<div class="review-section">
-<h3>Personal Information</h3>
-<div class="review-grid personal-info-grid">
-<div class="review-item">
-<span class="review-label">Name</span>
-<span class="review-value">${this.querySelector('#FirstName')?.value || ''} ${this.querySelector('#LastName')?.value || ''}</span>
-</div>
-<div class="review-item">
-<span class="review-label">Email</span>
-<span class="review-value">${this.querySelector('#Email')?.value || ''}</span>
-</div>
-<div class="review-item">
-<span class="review-label">Phone</span>
-<span class="review-value">${this.querySelector('#Phone')?.value || ''}</span>
-</div>
-<div class="review-item">
-<span class="review-label">Address</span>
-<span class="review-value">
-${this.querySelector('#AddressLine1')?.value || ''}<br>
-${this.querySelector('#AddressLine2')?.value ? this.querySelector('#AddressLine2').value + '<br>' : ''}
-${this.querySelector('#City')?.value || ''}, ${this.querySelector('#State')?.value || ''} ${this.querySelector('#Zip')?.value || ''}
-</span>
-</div>
-</div>
-</div>
+        <div class="form-content review-content">
+            <div class="review-sections-grid">
+                <div class="review-section">
+                    <h3>Personal Information</h3>
+                    <div class="review-grid personal-info-grid">
+                        <div class="review-item">
+                            <span class="review-label">Name</span>
+                            <span class="review-value">${this.querySelector('#FirstName')?.value || ''} ${this.querySelector('#LastName')?.value || ''}</span>
+                        </div>
+                        <div class="review-item">
+                            <span class="review-label">Email</span>
+                            <span class="review-value">${this.querySelector('#Email')?.value || ''}</span>
+                        </div>
+                        <div class="review-item">
+                            <span class="review-label">Phone</span>
+                            <span class="review-value">${this.querySelector('#Phone')?.value || ''}</span>
+                        </div>
+                        <div class="review-item">
+                            <span class="review-label">Address</span>
+                            <span class="review-value">
+                                ${this.querySelector('#AddressLine1')?.value || ''}<br>
+                                ${this.querySelector('#AddressLine2')?.value || ''}<br>
+                                ${this.querySelector('#City')?.value || ''}, ${this.querySelector('#State')?.value || ''} ${this.querySelector('#Zip')?.value || ''}
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-<div class="review-section">
+                <div class="review-section">
                     <h3>Project Details</h3>
                     <div class="review-grid project-details-grid">
                         <div class="review-item">
@@ -1068,7 +1073,7 @@ ${this.querySelector('#City')?.value || ''}, ${this.querySelector('#State')?.val
                     </div>
                 </div>
 
-                ${dimensionsSection}  ${additionalNotesSection}  </div> </div>
+                ${dimensionsSection}  ${additionalNotesSection} </div> </div> </div> </div>
     `;
 }
 	
@@ -1376,46 +1381,49 @@ initializeStyleSelectionListeners(page4) {
 }
 
 initializeDimensionsListeners(page5) {
-    if (!page5) { // Check if page5 exists
+    if (!page5) {
         console.error('Dimensions page not found');
         return;
     }
 
-    // Now you can use page5 within this method
     const dimensionInputs = page5.querySelectorAll('input[type="number"]');
+    const notesInput = page5.querySelector('#additional-notes');
 
     // Assign dimension input handler
     this.handleDimensionInput = (event) => {
-        if (!this.quoteData.dimensions) {
-            this.quoteData.dimensions = {};
+        this.quoteData.dimensions = this.quoteData.dimensions || {}; // Ensure dimensions object exists
+        const value = parseFloat(event.target.value);
+        if (!isNaN(value)) { // Check if the parsed value is a number
+            this.quoteData.dimensions[event.target.id] = value;
+            this.saveFormData();
         }
-        this.quoteData.dimensions[event.target.id] = parseFloat(event.target.value);
-        this.saveFormData();
     };
 
     dimensionInputs.forEach(input => {
+        input.addEventListener('input', this.handleDimensionInput);
+
+        // Restore saved values (if any)
         if (this.quoteData.dimensions && this.quoteData.dimensions[input.id]) {
             input.value = this.quoteData.dimensions[input.id];
         }
-
-        input.addEventListener('input', this.handleDimensionInput); // Use the assigned handler
     });
 
-    const notesInput = page5.querySelector('#additional-notes');
-
+    // Assign notes input handler
     this.handleNotesInput = (event) => {
         this.quoteData.additionalNotes = event.target.value;
         this.saveFormData();
     };
 
-    if (this.quoteData.additionalNotes && notesInput) { // Check if notesInput exists
-        notesInput.value = this.quoteData.additionalNotes;
-    }
-    
-    if (notesInput) { // Check if notesInput exists before adding listener
-        notesInput.addEventListener('input', this.handleNotesInput); // Use the assigned handler
+    if (notesInput) {
+        notesInput.addEventListener('input', this.handleNotesInput);
+
+        // Restore saved notes (if any)
+        if (this.quoteData.additionalNotes) {
+            notesInput.value = this.quoteData.additionalNotes;
+        }
     }
 }
+
 
 // initializeDimensionsListeners (using this.page5):
 initializeDimensionsListeners() {
