@@ -467,55 +467,108 @@ validateRequiredFields(pageId) {
         };
     }
 
-    showPage(pageNum) {
-        const pages = this.querySelectorAll(".form-page");
-        pages.forEach((pg, i) => {
-            pg.classList.toggle("active", i === pageNum - 1);
-        });
-       
-        
-        const beginButton = this.querySelector("#beginBtn");
-        const prevButton = this.querySelector("#prevBtn");
-        const nextButton = this.querySelector("#nextBtn");
-        const startOverButton = this.querySelector("#startOverBtn");
-        
-        if (pageNum === 1) {
-            beginButton.style.display = "block";
-            prevButton.style.display = "none";
-            nextButton.style.display = "none";
-        } else if (pageNum === 7) {
-            beginButton.style.display = "none";
-            prevButton.style.display = "none";
-            nextButton.style.display = "none";
-            startOverButton.style.display = "block";
-        } else {
-            beginButton.style.display = "none";
-            prevButton.style.display = "block";
-            nextButton.style.display = "block";
-            
-            if (pageNum === 6) {
-                nextButton.textContent = "Submit";
-                nextButton.style.backgroundColor = "var(--success-color)";
-            } else {
-                nextButton.textContent = "Next";
-                nextButton.style.backgroundColor = "var(--primary-color)";
-            }
-        }
-
-        if (pageNum > 1 && this.classList.contains('fullscreen')) {
-            setTimeout(() => {
-                this.querySelector('.form-body').scrollTo({ top: 0, behavior: 'smooth' });
-            }, 0);
-        }
-
-        this.saveFormData();
- this.currentPage = pageNum;
-if (this.isMobile()) {
-    this.adjustFormHeight();
-}
+showPage(pageNum) {
+    console.log(`Showing page ${pageNum}, current page was ${this.currentPage}`);
+    
+    // Validate page number
+    if (pageNum < 1 || pageNum > 7) {
+        console.error(`Invalid page number: ${pageNum}`);
+        return;
     }
-	
-	// Add these methods to your class:
+    
+    // CRITICAL: Prevent skipping to thank you page
+    if (pageNum === 7 && this.currentPage !== 6) {
+        console.error(`BLOCKED: Attempted to jump to thank you page from page ${this.currentPage}`);
+        console.trace(); // Show stack trace
+        this.showErrorPopup("Please complete all steps in order.");
+        return; // Exit without changing pages
+    }
+    
+    // Check if the target page exists
+    const targetPage = this.querySelector(`#page${pageNum}`);
+    if (!targetPage) {
+        console.error(`Page ${pageNum} not found in the DOM`);
+        return;
+    }
+    
+    // Update page visibility
+    const pages = this.querySelectorAll(".form-page");
+    pages.forEach((pg, i) => {
+        pg.classList.toggle("active", i === pageNum - 1);
+    });
+    
+    // Log which page is now active
+    setTimeout(() => {
+        const activePage = this.querySelector('.form-page.active');
+        console.log(`Active page after navigation: ${activePage ? activePage.id : "none"}`);
+    }, 0);
+    
+    // Update navigation buttons
+    const beginButton = this.querySelector("#beginBtn");
+    const prevButton = this.querySelector("#prevBtn");
+    const nextButton = this.querySelector("#nextBtn");
+    const startOverButton = this.querySelector("#startOverBtn");
+    
+    if (pageNum === 1) {
+        beginButton.style.display = "block";
+        prevButton.style.display = "none";
+        nextButton.style.display = "none";
+        startOverButton.style.display = "none";
+    } else if (pageNum === 7) {
+        beginButton.style.display = "none";
+        prevButton.style.display = "none";
+        nextButton.style.display = "none";
+        startOverButton.style.display = "block";
+    } else {
+        beginButton.style.display = "none";
+        prevButton.style.display = "block";
+        nextButton.style.display = "block";
+        startOverButton.style.display = "none";
+        
+        if (pageNum === 6) {
+            nextButton.textContent = "Submit";
+            nextButton.style.backgroundColor = "var(--success-color)";
+        } else {
+            nextButton.textContent = "Next";
+            nextButton.style.backgroundColor = "var(--primary-color)";
+        }
+    }
+
+    // Scroll to top for better user experience
+    if (pageNum > 1 && this.classList.contains('fullscreen')) {
+        setTimeout(() => {
+            const formBody = this.querySelector('.form-body');
+            if (formBody) {
+                formBody.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }, 0);
+    }
+
+    // Save form data and update current page
+    this.saveFormData();
+    this.currentPage = pageNum;
+    
+    // Adjust height for mobile devices
+    if (this.isMobile()) {
+        this.adjustFormHeight();
+    }
+    
+    // For debugging: check which pages are visible after navigation
+    setTimeout(() => {
+        this.debugCheckVisiblePages();
+    }, 100);
+}
+
+// Add this helper method if you don't have it already
+debugCheckVisiblePages() {
+    console.log("Page visibility check:");
+    const pages = this.querySelectorAll('.form-page');
+    pages.forEach(page => {
+        const isActive = page.classList.contains('active');
+        const display = window.getComputedStyle(page).display;
+        console.log(`- ${page.id}: active=${isActive}, display=${display}`);
+    });
+}
 
 getFormPages() {
     return `
@@ -800,6 +853,8 @@ break;
 page5 = null;
 
 renderDimensionsPage(selectedRoom) {
+    console.log(`Rendering dimensions page for ${selectedRoom}`);
+    
     return new Promise((resolve, reject) => {
         try {
             const formBody = this.querySelector('.form-body');
@@ -807,25 +862,42 @@ renderDimensionsPage(selectedRoom) {
                 throw new Error("Form body not found.");
             }
 
-       // Use this.page5 to store the element
-            this.page5 = this.querySelector('#page5'); // Try to get existing element
-            if (!this.page5) {
-                this.page5 = document.createElement('div'); // Create if it doesn't exist
-                this.page5.id = 'page5';
-                this.page5.className = 'form-page';
-                formBody.appendChild(this.page5);
+            // Always create a fresh page5
+            let page5 = this.querySelector('#page5');
+            if (page5) {
+                console.log("Removing existing page5");
+                page5.remove();
             }
-            const dimensionsTemplate = selectedRoom === 'Other Spaces' ? this.getOtherSpacesDimensionsTemplate() : this.getDimensionsTemplate();
-            this.page5.innerHTML = this.getDimensionsPageTemplate(dimensionsTemplate); // Use this.page5
+            
+            page5 = document.createElement('div');
+            page5.id = 'page5';
+            page5.className = 'form-page';
+            formBody.appendChild(page5);
+            this.page5 = page5;
+            
+            console.log("Created new page5 element");
 
-            this.initializeDimensionsListeners(); // No need to pass page5
+            // Use the appropriate template based on room type
+            const dimensionsTemplate = selectedRoom === 'Other Spaces' 
+                ? this.getOtherSpacesDimensionsTemplate() 
+                : this.getDimensionsTemplate();
+                
+            page5.innerHTML = this.getDimensionsPageTemplate(dimensionsTemplate);
+            
+            console.log("Page5 HTML content set");
+            
+            // Initialize event listeners for the new page
+            this.initializeDimensionsListeners();
+            console.log("Dimensions listeners initialized");
 
             if (this.isMobile()) {
                 this.adjustFormHeight();
             }
-this.page5 = page5;
+            
+            console.log("Dimensions page rendering complete");
             resolve();
         } catch (error) {
+            console.error("Error in renderDimensionsPage:", error);
             reject(error);
         }
     });
@@ -930,11 +1002,11 @@ getWallDiagramTemplate() {
 }
 
 renderReviewPage() {
-    return new Promise(resolve => {
-        try { // Add try...catch block for error handling
+    return new Promise((resolve, reject) => {
+        try {
             const formBody = this.querySelector('.form-body');
             if (!formBody) {
-                throw new Error("Form body not found."); // Throw error to be caught
+                throw new Error("Form body not found.");
             }
 
             let page6 = this.querySelector('#page6');
@@ -983,11 +1055,12 @@ renderReviewPage() {
             if (this.isMobile()) {
                 this.adjustFormHeight();
             }
+console.log("Review page rendering complete");
             resolve();
         } catch (error) {
             console.error("Error rendering review page:", error);
             this.showErrorPopup("An error occurred while rendering the review page. Please try again.");
-            reject(error); // Reject the promise on error
+            reject(error); // Make sure to reject the promise on error
         }
     });
 }
@@ -1162,6 +1235,29 @@ restoreDimensionsAndNotes(quoteData) {
         localStorage.removeItem('formData');
         sessionStorage.clear();
     }
+
+initializePopupListeners() {
+    // Find popup elements
+    const popup = this.querySelector('.custom-popup');
+    const overlay = this.querySelector('.popup-overlay');
+    const closeBtn = popup.querySelector('.popup-close');
+    
+    // Add click event to close button
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            popup.style.display = 'none';
+            overlay.style.display = 'none';
+        });
+    }
+    
+    // Optional: Close popup when clicking on overlay
+    if (overlay) {
+        overlay.addEventListener('click', () => {
+            popup.style.display = 'none';
+            overlay.style.display = 'none';
+        });
+    }
+}
 
     // Event Listeners Initialization
     initializeEventListeners() {
@@ -1427,14 +1523,92 @@ initializeDimensionsListeners(page5) {
 
 // initializeDimensionsListeners (using this.page5):
 initializeDimensionsListeners() {
+    console.log("Initializing dimensions listeners");
+    
     if (!this.page5) {
-        console.error('Dimensions page not found');
+        console.error("Cannot initialize dimensions listeners: page5 is null");
         return;
     }
 
-    // Use this.page5 to access elements
+    // Find all number inputs on page5
     const dimensionInputs = this.page5.querySelectorAll('input[type="number"]');
-    // ... rest of your listener logic
+    console.log(`Found ${dimensionInputs.length} dimension inputs`);
+    
+    // Find the notes textarea
+    const notesInput = this.page5.querySelector('#additional-notes');
+    console.log(`Notes input found: ${!!notesInput}`);
+    
+    // Find the room name input (for Other Spaces)
+    const roomNameInput = this.page5.querySelector('#roomName');
+    console.log(`Room name input found: ${!!roomNameInput}`);
+
+    // Initialize the dimensions object if it doesn't exist
+    this.quoteData.dimensions = this.quoteData.dimensions || {};
+
+    // Add event listeners to dimension inputs
+    dimensionInputs.forEach(input => {
+        // Remove any existing listeners (just in case)
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+        
+        // Add fresh listener
+        newInput.addEventListener('input', (event) => {
+            const value = parseFloat(event.target.value);
+            if (!isNaN(value)) {
+                this.quoteData.dimensions[event.target.id] = value;
+                console.log(`Updated dimension ${event.target.id}: ${value}`);
+                this.saveFormData();
+            }
+        });
+        
+        // Restore saved value if available
+        if (this.quoteData.dimensions[newInput.id]) {
+            newInput.value = this.quoteData.dimensions[newInput.id];
+            console.log(`Restored value for ${newInput.id}: ${newInput.value}`);
+        }
+    });
+
+    // Add event listener to notes input
+    if (notesInput) {
+        // Remove any existing listeners
+        const newNotesInput = notesInput.cloneNode(true);
+        notesInput.parentNode.replaceChild(newNotesInput, notesInput);
+        
+        // Add fresh listener
+        newNotesInput.addEventListener('input', (event) => {
+            this.quoteData.additionalNotes = event.target.value;
+            console.log("Updated additional notes");
+            this.saveFormData();
+        });
+        
+        // Restore saved notes if available
+        if (this.quoteData.additionalNotes) {
+            newNotesInput.value = this.quoteData.additionalNotes;
+            console.log("Restored additional notes");
+        }
+    }
+    
+    // Add event listener to room name input (for Other Spaces)
+    if (roomNameInput) {
+        // Remove any existing listeners
+        const newRoomNameInput = roomNameInput.cloneNode(true);
+        roomNameInput.parentNode.replaceChild(newRoomNameInput, roomNameInput);
+        
+        // Add fresh listener
+        newRoomNameInput.addEventListener('input', (event) => {
+            this.quoteData.dimensions.roomName = event.target.value;
+            console.log(`Updated room name: ${event.target.value}`);
+            this.saveFormData();
+        });
+        
+        // Restore saved room name if available
+        if (this.quoteData.dimensions.roomName) {
+            newRoomNameInput.value = this.quoteData.dimensions.roomName;
+            console.log(`Restored room name: ${newRoomNameInput.value}`);
+        }
+    }
+    
+    console.log("Dimensions listeners initialization complete");
 }
 
 // Helper function to validate and collect a single dimension
@@ -1479,6 +1653,8 @@ collectDimensions() {
         // Store roomName (no validation needed if it's optional)
         this.quoteData.dimensions.roomName = roomNameInput?.value || '';
 
+ console.log(`Collecting dimensions for Other Spaces, validation result: ${isValid}`);
+
         if (!isValid) { // Check only number input validity
             this.showErrorPopup("Please enter valid dimensions for Other Spaces.  Values must be greater than zero if entered.");
             return false;
@@ -1488,6 +1664,7 @@ collectDimensions() {
         let isValidDimensions = true;
         const inputs = this.querySelectorAll('#page5 input[type="number"]');
         inputs.forEach(input => isValidDimensions = this.validateNumberInput(input) && isValidDimensions); // Use helper function
+console.log(`Collecting dimensions for ${this.quoteData.Room}, validation result: ${isValidDimensions}`);
 
         if (!isValidDimensions) {
             this.showErrorPopup("Please enter valid dimensions. Values must be greater than zero if entered.");
@@ -1583,25 +1760,50 @@ async handleNextButtonClick() {
 
                 this.showPage(3); // Proceed to Room Selection
                 break; // Exit the switch case after handling page 2
+     
+case 3: // Room Selection
+    console.log("Processing room selection");
+    
+    if (!selectedRoomOption) {
+        this.showErrorPopup("Please select a room first.");
+        return;
+    }
 
-           case 3: // Room Selection
-                if (!selectedRoomOption) {
-                    this.showErrorPopup("Please select a room first.");
-                    return;
+    this.quoteData.Room = selectedRoom;
+    console.log(`Room selected: ${selectedRoom}`);
+    
+    // For Other Spaces, we need to ensure proper page creation and navigation
+    if (selectedRoom === 'Other Spaces') {
+        console.log("Other Spaces selected - special handling");
+        
+        try {
+            // First, ensure page 5 exists and is properly initialized
+            await this.createDimensionsPage(selectedRoom);
+            
+            // Then explicitly navigate to page 5
+            console.log("Navigating to dimensions page (page 5)");
+            this.forceShowPage(5);
+            
+            // Double-check that we're on page 5
+            setTimeout(() => {
+                const activePage = this.querySelector('.form-page.active');
+                console.log("Active page after navigation:", activePage ? activePage.id : "none");
+                
+                if (this.currentPage !== 5) {
+                    console.error("Navigation to page 5 failed, current page:", this.currentPage);
                 }
-
-                this.quoteData.Room = selectedRoom; // Set Room *before* rendering
-
-                if (selectedRoom === 'Other Spaces') {
-                    await this.renderDimensionsPage(selectedRoom);
-                    this.showPage(5);
-                    this.currentPage = 5; // Update currentPage *after* showPage
-                } else {
-                    await this.renderStyleSelectionPage(selectedRoom);
-                    this.showPage(4);
-                    this.currentPage = 4; // Update currentPage *after* showPage
-                }
-                break; // Add break to prevent fallthrough
+            }, 100);
+        } catch (error) {
+            console.error("Error handling Other Spaces selection:", error);
+            this.showErrorPopup("An error occurred. Please try again.");
+        }
+    } else {
+        // For other room types, proceed to style selection
+        console.log("Standard room selected - rendering style selection page");
+        await this.renderStyleSelectionPage(selectedRoom);
+        this.showPage(4);
+    }
+    break;
 
             case 4: // Style Selection
                 const selectedStyleOption = this.querySelector('.style-option.selected'); // Query for selectedStyleOption *here*
@@ -1616,12 +1818,28 @@ async handleNextButtonClick() {
                 this.currentPage = 5;
                 break;
 
-            case 5: // Dimensions
-                if (!this.collectDimensions()) return; // collectDimensions handles errors
-                await this.renderReviewPage();
-                this.showPage(6);
-                this.currentPage = 6;
-                break;
+           case 5: // Dimensions
+    console.log("Processing dimensions page");
+    
+    if (!this.collectDimensions()) {
+        console.log("Dimension validation failed");
+        return;
+    }
+    
+    console.log("Dimensions collected successfully");
+    
+    try {
+        // Create the review page
+        await this.createReviewPage();
+        
+        // Force navigation to review page
+        console.log("Navigating to review page (page 6)");
+        this.forceShowPage(6);
+    } catch (error) {
+        console.error("Error navigating to review page:", error);
+        this.showErrorPopup("Failed to load review page. Please try again.");
+    }
+    break;
 
         case 6: // Review
             this.submitQuote();
@@ -1633,11 +1851,213 @@ async handleNextButtonClick() {
     }
 }
 
-async submitQuote() {
+async createReviewPage() {
+    console.log("Creating review page");
+    
     try {
-        // Add validation check before submission
-        if (!this.validateAllFields()) {
-            this.showPopup('Please check all required fields before submitting');
+        const formBody = this.querySelector('.form-body');
+        if (!formBody) {
+            throw new Error("Form body not found");
+        }
+        
+        // Remove any existing page 6
+        const existingPage6 = this.querySelector('#page6');
+        if (existingPage6) {
+            console.log("Removing existing page 6");
+            existingPage6.remove();
+        }
+        
+        // Create a fresh page 6
+        console.log("Creating new page 6");
+        const page6 = document.createElement('div');
+        page6.id = 'page6';
+        page6.className = 'form-page';
+        formBody.appendChild(page6);
+        
+        // Generate the review page content
+        const dimensions = this.quoteData.dimensions || {};
+        const additionalNotes = this.quoteData.additionalNotes;
+        
+        const hasDimensions = Object.entries(dimensions)
+            .filter(([key]) => key !== 'roomName')
+            .some(([key, value]) => value !== undefined && value !== '');
+            
+        let dimensionsHtml = "";
+        if (this.quoteData.Room === 'Other Spaces') {
+            dimensionsHtml = Object.entries(dimensions)
+                .filter(([key]) => key !== 'roomName')
+                .map(([key, value]) => `
+                    <div class="review-item">
+                        <span class="review-label">${key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                        <span class="review-value">${value} inches</span>
+                    </div>
+                `)
+                .join('');
+        } else {
+            dimensionsHtml = Object.entries(dimensions)
+                .filter(([key]) => key !== 'roomName')
+                .map(([key, value]) => `
+                    <div class="review-item">
+                        <span class="review-label">${key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                        <span class="review-value">${value} inches</span>
+                    </div>
+                `)
+                .join('');
+        }
+        
+        const hasAdditionalNotes = !!additionalNotes;
+        
+        // Set the page content
+        page6.innerHTML = this.getReviewPageTemplate(dimensionsHtml, hasDimensions, additionalNotes, hasAdditionalNotes);
+        console.log("Page 6 content set");
+        
+        return page6;
+    } catch (error) {
+        console.error("Error creating review page:", error);
+        throw error;
+    }
+}
+
+
+async createDimensionsPage(roomType) {
+    console.log(`Creating dimensions page for ${roomType}`);
+    
+    try {
+        const formBody = this.querySelector('.form-body');
+        if (!formBody) {
+            throw new Error("Form body not found");
+        }
+        
+        // Remove any existing page 5
+        const existingPage5 = this.querySelector('#page5');
+        if (existingPage5) {
+            console.log("Removing existing page 5");
+            existingPage5.remove();
+        }
+        
+        // Create a fresh page 5
+        console.log("Creating new page 5");
+        const page5 = document.createElement('div');
+        page5.id = 'page5';
+        page5.className = 'form-page';
+        formBody.appendChild(page5);
+        this.page5 = page5;
+        
+        // Generate the appropriate template
+        const template = roomType === 'Other Spaces' 
+            ? this.getOtherSpacesDimensionsTemplate() 
+            : this.getDimensionsTemplate();
+            
+        // Set the page content
+        page5.innerHTML = this.getDimensionsPageTemplate(template);
+        console.log("Page 5 content set");
+        
+        // Initialize event listeners
+        this.initializeDimensionsListeners();
+        console.log("Dimensions listeners initialized");
+        
+        return page5;
+    } catch (error) {
+        console.error("Error creating dimensions page:", error);
+        throw error;
+    }
+}
+
+// Add a method to force showing a page with extra checks
+forceShowPage(pageNum) {
+    console.log(`Force showing page ${pageNum}`);
+    
+    // Hide all pages first
+    const allPages = this.querySelectorAll('.form-page');
+    allPages.forEach(page => {
+        page.classList.remove('active');
+        page.style.display = 'none';
+    });
+    
+    // Show the target page
+    const targetPage = this.querySelector(`#page${pageNum}`);
+    if (!targetPage) {
+        console.error(`Page ${pageNum} not found!`);
+        return;
+    }
+    
+    targetPage.classList.add('active');
+    targetPage.style.display = 'block';
+    console.log(`Page ${pageNum} (${targetPage.id}) activated`);
+    
+    // Update navigation buttons
+    this.updateNavigationButtons(pageNum);
+    
+    // Update current page
+    this.currentPage = pageNum;
+    console.log(`Current page set to ${this.currentPage}`);
+    
+    // Save form data
+    this.saveFormData();
+    
+    // Adjust height for mobile
+    if (this.isMobile()) {
+        this.adjustFormHeight();
+    }
+}
+
+// Add a method to update navigation buttons
+updateNavigationButtons(pageNum) {
+    const beginButton = this.querySelector("#beginBtn");
+    const prevButton = this.querySelector("#prevBtn");
+    const nextButton = this.querySelector("#nextBtn");
+    const startOverButton = this.querySelector("#startOverBtn");
+    
+    // Hide all buttons first
+    beginButton.style.display = "none";
+    prevButton.style.display = "none";
+    nextButton.style.display = "none";
+    startOverButton.style.display = "none";
+    
+    // Show appropriate buttons based on page
+    if (pageNum === 1) {
+        beginButton.style.display = "block";
+    } else if (pageNum === 7) {
+        startOverButton.style.display = "block";
+    } else {
+        prevButton.style.display = "block";
+        nextButton.style.display = "block";
+        
+        // Set submit button on review page
+        if (pageNum === 6) {
+            nextButton.textContent = "Submit";
+            nextButton.style.backgroundColor = "var(--success-color)";
+        } else {
+            nextButton.textContent = "Next";
+            nextButton.style.backgroundColor = "var(--primary-color)";
+        }
+    }
+}
+
+async submitQuote() {
+    console.log(`Submitting quote, current page: ${this.currentPage}, Room: ${this.quoteData.Room}`);
+    
+    try {
+        // CRITICAL CHECK: Only allow submission from the review page (page 6)
+        if (this.currentPage !== 6) {
+            console.error(`BLOCKED: Attempted to submit from incorrect page: ${this.currentPage}`);
+            this.showErrorPopup("Please complete all steps before submitting.");
+            return;
+        }
+
+        // Check if we're actually on page 6 visually
+        const page6 = this.querySelector('#page6');
+        const isPage6Active = page6 && page6.classList.contains('active');
+        const isPage6Visible = page6 && window.getComputedStyle(page6).display !== 'none';
+        
+        if (!isPage6Active || !isPage6Visible) {
+            console.error(`Page mismatch: currentPage=${this.currentPage} but page6 active=${isPage6Active}, visible=${isPage6Visible}`);
+            this.showErrorPopup("Please complete all steps before submitting.");
+            return;
+        }
+
+        // Additional validation for required data
+        if (!this.validateSubmissionData()) {
             return;
         }
 
@@ -1651,39 +2071,49 @@ async submitQuote() {
 
         const formData = {
             personalInfo: {
-                firstName: this.querySelector('#FirstName').value,
-                lastName: this.querySelector('#LastName').value,
-                email: this.querySelector('#Email').value,
-                phone: this.querySelector('#Phone').value,
+                firstName: this.querySelector('#FirstName')?.value || '',
+                lastName: this.querySelector('#LastName')?.value || '',
+                email: this.querySelector('#Email')?.value || '',
+                phone: this.querySelector('#Phone')?.value || '',
                 address: {
-                    line1: this.querySelector('#AddressLine1').value,
-                    line2: this.querySelector('#AddressLine2').value,
-                    city: this.querySelector('#City').value,
-                    state: this.querySelector('#State').value,
-                    zip: this.querySelector('#Zip').value
+                    line1: this.querySelector('#AddressLine1')?.value || '',
+                    line2: this.querySelector('#AddressLine2')?.value || '',
+                    city: this.querySelector('#City')?.value || '',
+                    state: this.querySelector('#State')?.value || '',
+                    zip: this.querySelector('#Zip')?.value || ''
                 }
             },
             projectDetails: {
-                roomType: this.quoteData.Room,
-                style: this.quoteData.StyleSelection,
-                dimensions: this.quoteData.dimensions,
-                additionalNotes: this.quoteData.additionalNotes
+                roomType: this.quoteData.Room || '',
+                style: this.quoteData.StyleSelection || '',
+                dimensions: this.quoteData.dimensions || {},
+                additionalNotes: this.quoteData.additionalNotes || ''
             }
         };
 
+        console.log("Form data prepared for submission:", formData);
+
+        // Create and dispatch the custom event
         const event = new CustomEvent('submitQuote', {
             detail: formData,
             bubbles: true,
             composed: true
         });
         
-        const result = await this.dispatchEvent(event);
+        console.log("Dispatching submitQuote event");
+        const result = this.dispatchEvent(event);
+        console.log("Event dispatch result:", result);
         
+        // Note: dispatchEvent returns false if event.preventDefault() was called
+        // It always returns true for custom events unless explicitly prevented
         if (result) {
-            this.showPage(7);
-            this.clearSavedData(); // Clear saved data after successful submission
+            console.log("Submission successful, showing thank you page");
+            
+            // Use a more reliable way to show the thank you page
+            this.forceNavigateToThankYouPage();
         } else {
-            throw new Error('Submission failed');
+            console.error("Submission prevented by event handler");
+            throw new Error('Submission was prevented');
         }
         
     } catch (error) {
@@ -1698,6 +2128,104 @@ async submitQuote() {
             submitButton.textContent = "Submit";
         }
     }
+}
+
+// Add this helper method to ensure reliable navigation to the thank you page
+forceNavigateToThankYouPage() {
+    console.log("Force navigating to thank you page");
+    
+    try {
+        // Hide all pages
+        const allPages = this.querySelectorAll('.form-page');
+        allPages.forEach(page => {
+            page.classList.remove('active');
+            page.style.display = 'none';
+        });
+        
+        // Show thank you page
+        const thankYouPage = this.querySelector('#page7');
+        if (!thankYouPage) {
+            throw new Error("Thank you page not found");
+        }
+        
+        thankYouPage.classList.add('active');
+        thankYouPage.style.display = 'block';
+        
+        // Update navigation buttons
+        const beginButton = this.querySelector("#beginBtn");
+        const prevButton = this.querySelector("#prevBtn");
+        const nextButton = this.querySelector("#nextBtn");
+        const startOverButton = this.querySelector("#startOverBtn");
+        
+        beginButton.style.display = "none";
+        prevButton.style.display = "none";
+        nextButton.style.display = "none";
+        startOverButton.style.display = "block";
+        
+        // Update current page
+        this.currentPage = 7;
+        
+        // Clear saved data
+        this.clearSavedData();
+        
+        console.log("Successfully navigated to thank you page");
+    } catch (error) {
+        console.error("Error navigating to thank you page:", error);
+        this.showErrorPopup("An error occurred. Please try again.");
+    }
+}
+
+// Add this helper method to validate submission data
+validateSubmissionData() {
+    console.log("Validating submission data");
+    
+    // Check for required personal info
+    const requiredFields = ['FirstName', 'LastName', 'Email', 'Phone', 'City', 'State', 'Zip'];
+    for (const fieldId of requiredFields) {
+        const field = this.querySelector(`#${fieldId}`);
+        if (!field || !field.value.trim()) {
+            console.error(`Missing required field: ${fieldId}`);
+            this.showErrorPopup("Please complete all required personal information.");
+            return false;
+        }
+    }
+    
+    // Check for room selection
+    if (!this.quoteData.Room) {
+        console.error("No room type selected");
+        this.showErrorPopup("Please select a room type.");
+        return false;
+    }
+    
+    // Check for style selection (except for Other Spaces)
+    if (this.quoteData.Room !== 'Other Spaces' && !this.quoteData.StyleSelection) {
+        console.error("No style selected for non-Other Spaces room");
+        this.showErrorPopup("Please select a style for your room.");
+        return false;
+    }
+    
+    console.log("Submission data validation passed");
+    return true;
+}
+
+// Helper method to check if dimensions exist
+hasDimensions(dimensions) {
+    return Object.entries(dimensions)
+        .filter(([key]) => key !== 'roomName')
+        .some(([key, value]) => value !== undefined && value !== '');
+}
+
+// Helper method to generate dimensions HTML
+generateDimensionsHtml(dimensions) {
+    return Object.entries(dimensions)
+        .filter(([key]) => key !== 'roomName')
+        .map(([key, value]) => `
+            <div class="review-item">
+                <span class="review-label">${key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                <span class="review-value">${value} inches</span>
+            </div>
+        `)
+        .join('');
 }
 
 // Add this validation method
