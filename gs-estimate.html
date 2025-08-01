@@ -1,0 +1,113 @@
+<quote-form>
+<div class="quote-form-container">
+    <div class="custom-popup" style="display: none;">
+        <div class="popup-content">
+            <h3>Required Fields</h3>
+            <p>Please fill out all required fields marked with *</p>
+            <button class="popup-close">OK</button>
+        </div>
+    </div>
+    <div class="popup-overlay" style="display: none;"></div>
+    
+     <div class="form-body">
+    <!-- Page 1: Welcome Page -->
+    <div class="form-page welcome-page active" id="page1">
+        <div class="image-banner"><h1>Your Dream Design</h1></div>
+    </div>
+    
+    <!-- Page 2: Customer Information -->
+    <div class="form-page" id="page2">
+            <div class="required-note">*Required</div>
+            <h2>Tell us about yourself</h2>
+            <div class="form-content">
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="Name">Name*</label>
+                        <input type="text" id="Name" required placeholder="Your full name">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="Phone">Phone</label>
+                        <input type="tel" id="Phone" placeholder="(123) 456-7890" inputmode="numeric">
+                    </div>
+                    <div class="form-group">
+                        <label for="Email">Email</label>
+                        <input type="email" id="Email" placeholder="your.email@example.com">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>Preferred Contact Method*</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="contactMethod" value="phone" required>
+                                Phone
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="contactMethod" value="email" required>
+                                Email
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>Rooms of Interest* (select at least one)</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="roomInterest" value="Kitchen">
+                                Kitchen
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="roomInterest" value="Bathroom">
+                                Bathroom
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="roomInterest" value="Closet">
+                                Closet
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row" id="otherRoomContainer" style="display: none;">
+                    <div class="form-group full-width">
+                        <label for="otherRoomName">Other Room Name*</label>
+                        <input type="text" id="otherRoomName" placeholder="Please specify room type">
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    <!-- Page 3: Room Size Selection -->
+    <div class="form-page" id="page3">
+        <div class="required-note">*Required</div>
+        <h2>Select Room Size</h2>
+        <div class="form-content">
+            <p class="dimension-instructions">Please select the approximate size for each room:</p>
+            <div id="roomDimensionsContainer">
+                <!-- Room size options will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Page 4: Thank You with Estimates -->
+    <div class="form-page" id="page4">
+        <!-- Thank you content will be dynamically inserted here -->
+    </div>
+</div>
+    
+    <div class="form-nav">
+        <button id="resetFormBtn" class="reset-button">Reset Form</button>
+        <div class="nav-buttons">
+            <button id="beginBtn" class="nav-button">Begin</button>
+            <button id="prevBtn" class="nav-button">Previous</button>
+            <button id="nextBtn" class="nav-button">Next</button>
+        </div>
+    </div>
+</div>
+</quote-form>
