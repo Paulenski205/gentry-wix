@@ -868,7 +868,7 @@ renderRoomDimensionsPage() {
         reviewContainer.appendChild(roomsSection);
     }
 
- async submitQuote() {
+async submitQuote() {
     try {
         // Set loading state
         this.setAttribute('submitting', '');
@@ -886,29 +886,31 @@ renderRoomDimensionsPage() {
             submissionDate: new Date().toISOString()
         };
 
-        // Create and dispatch the custom event
-        const event = new CustomEvent('submitQuote', {
-            detail: formData,
-            bubbles: true,
-            composed: true
-        });
+        console.log("Preparing to submit quote data");
         
-        console.log("Dispatching submitQuote event");
-        const result = this.dispatchEvent(event);
-        
-        if (result) {
-            console.log("Submission successful, showing thank you page");
+        // Send data to parent window (Wix) using postMessage
+        if (window.parent) {
+            // For wixWindow.onMessage.add()
+            window.parent.postMessage({
+                type: 'submitQuote',
+                data: formData
+            }, '*');
             
-            // Render the thank you page with estimates
-            this.renderThankYouWithEstimates();
+            // For HTML Component's onMessage
+            window.parent.postMessage({
+                type: 'submitQuote',
+                data: formData
+            }, '*');
             
-            // Show the thank you page
-            this.showPage(4); // Now page 4 is the thank you page
-            this.clearSavedData();
-        } else {
-            console.error("Submission prevented by event handler");
-            throw new Error('Submission was prevented');
+            console.log("Posted message to parent window");
         }
+        
+        // Render the thank you page with estimates
+        this.renderThankYouWithEstimates();
+        
+        // Show the thank you page
+        this.showPage(4);
+        this.clearSavedData();
         
     } catch (error) {
         console.error('Form submission error:', error);
