@@ -375,15 +375,59 @@ showPage(pageNum) {
     }
 
 calculateEstimates() {
-    // For now, just assign $1 to each room as a placeholder
+    // Define price lookup table for each room type and size
+    const priceLookup = {
+        Kitchen: {
+            0: 3690, // Small
+            1: 4600, // Average
+            2: 6560  // Large
+        },
+        Bathroom: {
+            0: 1025, // Small
+            1: 1230, // Average
+            2: 1640  // Large
+        },
+        Closet: {
+            0: 1280, // Small
+            1: 2160, // Average
+            2: 2870  // Large
+        }
+    };
+    
+    // Default prices for any other room types
+    const defaultPrices = {
+        0: 1500, // Small
+        1: 2500, // Average
+        2: 3500  // Large
+    };
+    
+    // Calculate estimate for each room
     this.quoteData.rooms.forEach(room => {
-        room.estimate = 1.00; // $1 placeholder
+        const roomType = room.name;
+        const sizeIndex = room.selectedSizeIndex;
+        
+        // Look up the price based on room type and size
+        if (priceLookup[roomType] && sizeIndex !== undefined) {
+            room.estimate = priceLookup[roomType][sizeIndex];
+        } else if (sizeIndex !== undefined) {
+            // Use default price if room type not found in lookup
+            room.estimate = defaultPrices[sizeIndex];
+        } else {
+            // Fallback if no size selected
+            room.estimate = 0;
+        }
     });
     
     // Calculate total estimate
     this.quoteData.totalEstimate = this.quoteData.rooms.reduce((total, room) => total + room.estimate, 0);
+    
+    console.log("Calculated estimates:", this.quoteData.rooms.map(room => ({
+        name: room.name,
+        size: room.selectedSizeIndex,
+        estimate: room.estimate
+    })));
+    console.log("Total estimate:", this.quoteData.totalEstimate);
 }
-
 
     saveFormData() {
         localStorage.setItem('formData', JSON.stringify(this.quoteData));
