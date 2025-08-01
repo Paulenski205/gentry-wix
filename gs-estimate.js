@@ -1,7 +1,6 @@
 class QuoteForm extends HTMLElement {
     constructor() {
         super();
-this.attachShadow({ mode: 'open' });
         this.currentPage = 1;
         this.quoteData = {
             rooms: []  // Will store multiple room selections and their dimensions
@@ -26,8 +25,8 @@ this.attachShadow({ mode: 'open' });
 
     adjustFormHeight() {
         if (this.isMobile()) {
-            const formBody = this.shadowRoot.querySelector('.form-body');
-            const activePage = this.shadowRoot.querySelector('.form-page.active');
+            const formBody = this.querySelector('.form-body');
+            const activePage = this.querySelector('.form-page.active');
 
             if (formBody && activePage) {
                 formBody.style.height = 'auto';
@@ -70,100 +69,36 @@ this.attachShadow({ mode: 'open' });
         window.addEventListener('resize', this.handleResize);
     }
 
-async connectedCallback() {
-    // URLs for your hosted files
-    const htmlUrl = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@51f07c1abd6eb45b4b5ef865691aa591a56e7987/gs-estimate.html";
-    const cssUrl = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@51f07c1abd6eb45b4b5ef865691aa591a56e7987/gs-estimate.css";
-
-    try {
-        console.log("Component connected. Fetching resources...");
-
-        // 1. Fetch both the HTML and CSS files at the same time
-        const [htmlResponse, cssResponse] = await Promise.all([
-            fetch(htmlUrl),
-            fetch(cssUrl)
-        ]);
-
-        // Check if the fetch requests were successful
-        if (!htmlResponse.ok) throw new Error(`Failed to load HTML: ${htmlResponse.status}`);
-        if (!cssResponse.ok) throw new Error(`Failed to load CSS: ${cssResponse.status}`);
-
-        // Get the text content from the responses
-        const htmlTemplate = await htmlResponse.text();
-        let cssTemplate = await cssResponse.text();
-        
-        // Add Shadow DOM specific styles
-        cssTemplate += `
-            /* Shadow DOM specific styles */
-            :host {
-              display: block;
+   connectedCallback() {
+        try {
+            console.log("Component connected");
+            
+            // Find the form container
+            const formContainer = this.querySelector('.quote-form-container');
+            if (formContainer) {
+                // Append the fullscreen buttons
+                formContainer.appendChild(this.fullscreenBtn);
+                formContainer.appendChild(this.exitFullscreenBtn);
+            } else {
+                console.error("Form container not found");
             }
             
-            :host(.fullscreen) {
-              position: fixed;
-              top: 0;
-              left: 0;
-              width: 100vw;
-              height: 100vh;
-              z-index: 9999;
-            }
+            // Initialize the form
+            this.initializeForm();
             
-            :host(.fullscreen) .quote-form-container {
-              width: 100vw !important;
-              height: 100vh !important;
-              margin: 0;
-              padding: 0;
-              border-radius: 0;
-              background-color: var(--background-dark);
-            }
-            
-            :host(.fullscreen) .form-body {
-              height: calc(100vh - 60px);
-              overflow-y: auto;
-              padding: 20px;
-            }
-            
-            :host(.fullscreen) .form-page {
-              height: calc(100% - 40px);
-            }
-        `;
-
-        // 2. Inject the CSS and HTML into the component's Shadow DOM
-        this.shadowRoot.innerHTML = `<style>${cssTemplate}</style>${htmlTemplate}`;
-        
-        console.log("HTML and CSS have been loaded into the component's Shadow DOM.");
-
-        // 3. Now that the HTML is loaded, find the form container
-        const formContainer = this.shadowRoot.querySelector('.quote-form-container');
-        if (formContainer) {
-            // Append the fullscreen buttons as you did before
-            formContainer.appendChild(this.fullscreenBtn);
-            formContainer.appendChild(this.exitFullscreenBtn);
-        } else {
-            console.error("Form container not found inside the fetched HTML.");
+        } catch (error) {
+            console.error('Error initializing form:', error);
+            this.innerHTML = '<div>Error loading form. Please try again later.</div>';
         }
-
-        // 4. Finally, initialize the form's functionality
-        this.initializeForm();
-
-    } catch (error) {
-        console.error('Error initializing form:', error);
-        this.shadowRoot.innerHTML = '<div>Error loading form. Please try again later.</div>';
     }
-}
 
     initializeForm() {
- console.log("Shadow DOM content:", this.shadowRoot.innerHTML);
-        const loadingState = this.shadowRoot.querySelector('.loading-state');
-        const formContainer = this.shadowRoot.querySelector('.quote-form-container');
+        console.log("Initializing form");
+        const formContainer = this.querySelector('.quote-form-container');
 
         if (!formContainer) {
             console.error('Form container not found');
             return;
-        }
-
-        if (loadingState) {
-            loadingState.remove();
         }
 
         formContainer.classList.add('ready');
@@ -203,28 +138,28 @@ async connectedCallback() {
         return btn;
     }
 
-async toggleFullscreen() {
-    try {
-        if (!document.fullscreenElement) {
-            // Request fullscreen on the container inside the shadow DOM instead of 'this'
-            const container = this.shadowRoot.querySelector('.quote-form-container');
-            if (container) {
-                await container.requestFullscreen();
+    async toggleFullscreen() {
+        try {
+            if (!document.fullscreenElement) {
+                // Request fullscreen on the container
+                const container = this.querySelector('.quote-form-container');
+                if (container) {
+                    await container.requestFullscreen();
+                } else {
+                    await this.requestFullscreen(); // Fallback
+                }
             } else {
-                await this.requestFullscreen(); // Fallback
+                document.exitFullscreen();
             }
-        } else {
-            document.exitFullscreen();
+        } catch (err) {
+            console.error('Error attempting to toggle fullscreen:', err);
+            this.showErrorPopup("An error occurred while toggling fullscreen mode. Please try again.");
         }
-    } catch (err) {
-        console.error('Error attempting to toggle fullscreen:', err);
-        this.showErrorPopup("An error occurred while toggling fullscreen mode. Please try again.");
     }
-}
 
     // Validation Methods
     validateRequiredFields(pageId) {
-        const inputs = this.shadowRoot.querySelectorAll(`#${pageId} [required]`);
+        const inputs = this.querySelectorAll(`#${pageId} [required]`);
         let isValid = true;
 
         inputs.forEach(input => {
@@ -254,7 +189,7 @@ async toggleFullscreen() {
     }
 
     validateRoomSelection() {
-        const selectedRooms = this.shadowRoot.querySelectorAll('input[name="roomInterest"]:checked');
+        const selectedRooms = this.querySelectorAll('input[name="roomInterest"]:checked');
         if (selectedRooms.length === 0) {
             this.showPopup('Please select at least one room of interest');
             return false;
@@ -263,7 +198,7 @@ async toggleFullscreen() {
     }
 
     validateContactMethod() {
-        const contactMethod = this.shadowRoot.querySelector('input[name="contactMethod"]:checked');
+        const contactMethod = this.querySelector('input[name="contactMethod"]:checked');
         if (!contactMethod) {
             this.showPopup('Please select your preferred contact method');
             return false;
@@ -272,13 +207,13 @@ async toggleFullscreen() {
         // Check if the corresponding field is filled
         const method = contactMethod.value;
         if (method === 'phone') {
-            const phone = this.shadowRoot.querySelector('#Phone').value;
+            const phone = this.querySelector('#Phone').value;
             if (!this.validatePhoneNumber(phone)) {
                 this.showPopup('Please enter a valid phone number');
                 return false;
             }
         } else if (method === 'email') {
-            const email = this.shadowRoot.querySelector('#Email').value;
+            const email = this.querySelector('#Email').value;
             if (!this.validateEmail(email)) {
                 this.showPopup('Please enter a valid email address');
                 return false;
@@ -315,8 +250,8 @@ async toggleFullscreen() {
 
     // UI Interaction Methods
     showPopup(message) {
-        const popup = this.shadowRoot.querySelector('.custom-popup');
-        const overlay = this.shadowRoot.querySelector('.popup-overlay');
+        const popup = this.querySelector('.custom-popup');
+        const overlay = this.querySelector('.popup-overlay');
         const messageElement = popup.querySelector('p');
         
         if (message) {
@@ -347,16 +282,16 @@ showPage(pageNum) {
     }
     
     // Update page visibility
-    const pages = this.shadowRoot.querySelectorAll(".form-page");
+    const pages = this.querySelectorAll(".form-page");
     pages.forEach((pg, i) => {
         pg.classList.toggle("active", i === pageNum - 1);
     });
     
     // Update navigation buttons - with null checks
-    const beginButton = this.shadowRoot.querySelector("#beginBtn");
-    const prevButton = this.shadowRoot.querySelector("#prevBtn");
-    const nextButton = this.shadowRoot.querySelector("#nextBtn");
-    const startOverButton = this.shadowRoot.querySelector("#startOverBtn");
+    const beginButton = this.querySelector("#beginBtn");
+    const prevButton = this.querySelector("#prevBtn");
+    const nextButton = this.querySelector("#nextBtn");
+    const startOverButton = this.querySelector("#startOverBtn");
     
     if (pageNum === 1) {
         if (beginButton) beginButton.style.display = "block";
@@ -386,7 +321,7 @@ showPage(pageNum) {
     // Scroll to top for better user experience
     if (pageNum > 1 && this.classList.contains('fullscreen')) {
         setTimeout(() => {
-            const formBody = this.shadowRoot.querySelector('.form-body');
+            const formBody = this.querySelector('.form-body');
             if (formBody) {
                 formBody.scrollTo({ top: 0, behavior: 'smooth' });
             }
@@ -405,10 +340,10 @@ showPage(pageNum) {
 
     // Form Data Handling Methods
     collectCustomerInfo() {
-        const name = this.shadowRoot.querySelector('#Name').value;
-        const phone = this.shadowRoot.querySelector('#Phone').value;
-        const email = this.shadowRoot.querySelector('#Email').value;
-        const contactMethod = this.shadowRoot.querySelector('input[name="contactMethod"]:checked')?.value;
+        const name = this.querySelector('#Name').value;
+        const phone = this.querySelector('#Phone').value;
+        const email = this.querySelector('#Email').value;
+        const contactMethod = this.querySelector('input[name="contactMethod"]:checked')?.value;
         
         this.quoteData.customerInfo = {
             name,
@@ -419,13 +354,13 @@ showPage(pageNum) {
 
         // Collect room selections
         this.quoteData.rooms = [];
-        const selectedRooms = this.shadowRoot.querySelectorAll('input[name="roomInterest"]:checked');
+        const selectedRooms = this.querySelectorAll('input[name="roomInterest"]:checked');
         selectedRooms.forEach(room => {
             let roomName = room.value;
             
             // If "Other" is selected, get the custom room name
             if (roomName === 'Other') {
-                const otherRoomName = this.shadowRoot.querySelector('#otherRoomName').value;
+                const otherRoomName = this.querySelector('#otherRoomName').value;
                 if (otherRoomName) {
                     roomName = otherRoomName;
                 }
@@ -463,13 +398,13 @@ calculateEstimates() {
             
             // Populate customer info fields
             if (this.quoteData.customerInfo) {
-                this.shadowRoot.querySelector('#Name').value = this.quoteData.customerInfo.name || '';
-                this.shadowRoot.querySelector('#Phone').value = this.quoteData.customerInfo.phone || '';
-                this.shadowRoot.querySelector('#Email').value = this.quoteData.customerInfo.email || '';
+                this.querySelector('#Name').value = this.quoteData.customerInfo.name || '';
+                this.querySelector('#Phone').value = this.quoteData.customerInfo.phone || '';
+                this.querySelector('#Email').value = this.quoteData.customerInfo.email || '';
                 
                 const contactMethod = this.quoteData.customerInfo.contactMethod;
                 if (contactMethod) {
-                    this.shadowRoot.querySelector(`input[name="contactMethod"][value="${contactMethod}"]`).checked = true;
+                    this.querySelector(`input[name="contactMethod"][value="${contactMethod}"]`).checked = true;
                 }
             }
             
@@ -479,12 +414,12 @@ calculateEstimates() {
                     // Check standard room options
                     const standardRooms = ['Kitchen', 'Bathroom', 'Closet'];
                     if (standardRooms.includes(room.name)) {
-                        this.shadowRoot.querySelector(`input[name="roomInterest"][value="${room.name}"]`).checked = true;
+                        this.querySelector(`input[name="roomInterest"][value="${room.name}"]`).checked = true;
                     } else {
                         // Handle "Other" room
-                        this.shadowRoot.querySelector('input[name="roomInterest"][value="Other"]').checked = true;
-                        this.shadowRoot.querySelector('#otherRoomName').value = room.name;
-                        this.shadowRoot.querySelector('#otherRoomContainer').style.display = 'block';
+                        this.querySelector('input[name="roomInterest"][value="Other"]').checked = true;
+                        this.querySelector('#otherRoomName').value = room.name;
+                        this.querySelector('#otherRoomContainer').style.display = 'block';
                     }
                 });
                 
@@ -513,63 +448,63 @@ calculateEstimates() {
     }
 
 initializeButtonListeners() {
-    // Begin button - use a more direct approach
-    setTimeout(() => {
-        const beginButton = this.shadowRoot.querySelector("#beginBtn");
-        console.log("Begin button (after delay):", beginButton);
-        
-        if (beginButton) {
-            // Use direct onclick property instead of addEventListener
-            beginButton.onclick = () => {
-                console.log("Begin button clicked via onclick property!");
-                this.showPage(2);
+        // Begin button - use a more direct approach
+        setTimeout(() => {
+            const beginButton = this.querySelector("#beginBtn");
+            console.log("Begin button (after delay):", beginButton);
+            
+            if (beginButton) {
+                // Use direct onclick property instead of addEventListener
+                beginButton.onclick = () => {
+                    console.log("Begin button clicked via onclick property!");
+                    this.showPage(2);
+                };
+            } else {
+                console.error("Begin button still not found after delay");
+            }
+        }, 100); // Small delay to ensure DOM is ready
+
+        // Previous button
+        const prevButton = this.querySelector("#prevBtn");
+        if (prevButton) {
+            prevButton.onclick = () => {
+                console.log("Previous button clicked");
+                this.showPage(this.currentPage - 1);
             };
-        } else {
-            console.error("Begin button still not found after delay");
         }
-    }, 100); // Small delay to ensure DOM is ready
 
-    // Previous button
-    const prevButton = this.shadowRoot.querySelector("#prevBtn");
-    if (prevButton) {
-        prevButton.onclick = () => {
-            console.log("Previous button clicked");
-            this.showPage(this.currentPage - 1);
-        };
-    }
-
-    // Next button
-    const nextButton = this.shadowRoot.querySelector("#nextBtn");
-    if (nextButton) {
-        nextButton.onclick = () => {
-            console.log("Next button clicked");
-            this.handleNextButtonClick();
-        };
-    }
+        // Next button
+        const nextButton = this.querySelector("#nextBtn");
+        if (nextButton) {
+            nextButton.onclick = () => {
+                console.log("Next button clicked");
+                this.handleNextButtonClick();
+            };
+        }
 
     // Reset form button
-    const resetFormBtn = this.shadowRoot.querySelector("#resetFormBtn");
-    if (resetFormBtn) {
-        resetFormBtn.onclick = () => {
-            if (confirm("Are you sure you want to reset the form? All entered data will be lost.")) {
-                this.resetForm();
-            }
-        };
-    }
+        const resetFormBtn = this.querySelector("#resetFormBtn");
+        if (resetFormBtn) {
+            resetFormBtn.onclick = () => {
+                if (confirm("Are you sure you want to reset the form? All entered data will be lost.")) {
+                    this.resetForm();
+                }
+            };
+        }
 
-    // Start over button
-    const startOverBtn = this.shadowRoot.querySelector("#startOverBtn");
-    if (startOverBtn) {
-        startOverBtn.onclick = () => {
-            this.resetForm();
-            this.showPage(1);
-        };
+        // Start over button
+        const startOverBtn = this.querySelector("#startOverBtn");
+        if (startOverBtn) {
+            startOverBtn.onclick = () => {
+                this.resetForm();
+                this.showPage(1);
+            };
+        }
     }
-}
 
     initializeInputListeners() {
         // Phone number formatting
-        const phoneInput = this.shadowRoot.querySelector('#Phone');
+        const phoneInput = this.querySelector('#Phone');
         if (phoneInput) {
             phoneInput.addEventListener('input', (e) => {
                 const unformatted = e.target.value.replace(/\D/g, '');
@@ -579,8 +514,8 @@ initializeButtonListeners() {
         }
 
         // Room interest "Other" field toggle
-        const otherRoomCheckbox = this.shadowRoot.querySelector('input[name="roomInterest"][value="Other"]');
-        const otherRoomContainer = this.shadowRoot.querySelector('#otherRoomContainer');
+        const otherRoomCheckbox = this.querySelector('input[name="roomInterest"][value="Other"]');
+        const otherRoomContainer = this.querySelector('#otherRoomContainer');
         
         if (otherRoomCheckbox && otherRoomContainer) {
             otherRoomCheckbox.addEventListener('change', () => {
@@ -589,9 +524,9 @@ initializeButtonListeners() {
         }
 
         // Contact method radio buttons
-        const contactMethodRadios = this.shadowRoot.querySelectorAll('input[name="contactMethod"]');
-        const phoneField = this.shadowRoot.querySelector('#Phone');
-        const emailField = this.shadowRoot.querySelector('#Email');
+        const contactMethodRadios = this.querySelectorAll('input[name="contactMethod"]');
+        const phoneField = this.querySelector('#Phone');
+        const emailField = this.querySelector('#Email');
         
         contactMethodRadios.forEach(radio => {
             radio.addEventListener('change', () => {
@@ -607,8 +542,8 @@ initializeButtonListeners() {
     }
 
     initializePopupListeners() {
-        const popup = this.shadowRoot.querySelector('.custom-popup');
-        const overlay = this.shadowRoot.querySelector('.popup-overlay');
+        const popup = this.querySelector('.custom-popup');
+        const overlay = this.querySelector('.popup-overlay');
         const closeBtn = popup.querySelector('.popup-close');
         
         if (closeBtn) {
@@ -658,7 +593,7 @@ validateSizeSelection() {
         if (room.selectedSizeIndex === undefined) {
             isValid = false;
             // Highlight the section that needs attention
-            const roomSection = this.shadowRoot.querySelector(`.room-dimension-section:nth-child(${index + 1})`);
+            const roomSection = this.querySelector(`.room-dimension-section:nth-child(${index + 1})`);
             if (roomSection) {
                 roomSection.classList.add('field-error');
             }
@@ -674,7 +609,7 @@ validateSizeSelection() {
 
 
 renderRoomDimensionsPage() {
-    const dimensionsContainer = this.shadowRoot.querySelector('#roomDimensionsContainer');
+    const dimensionsContainer = this.querySelector('#roomDimensionsContainer');
     if (!dimensionsContainer) return;
     
     // Clear previous content
@@ -761,14 +696,14 @@ renderRoomDimensionsPage() {
     });
     
     // Update the Next button text
-    const nextButton = this.shadowRoot.querySelector("#nextBtn");
+    const nextButton = this.querySelector("#nextBtn");
     if (nextButton) {
         nextButton.textContent = "GET QUOTE";
     }
 }
 
     renderEstimatePage() {
-    const estimateContainer = this.shadowRoot.querySelector('#estimateContainer');
+    const estimateContainer = this.querySelector('#estimateContainer');
     if (!estimateContainer) return;
     
     // Clear previous content
@@ -822,7 +757,7 @@ renderRoomDimensionsPage() {
 }
 
     renderReviewPage() {
-        const reviewContainer = this.shadowRoot.querySelector('#reviewContainer');
+        const reviewContainer = this.querySelector('#reviewContainer');
         if (!reviewContainer) return;
         
         // Customer information section
@@ -893,7 +828,7 @@ renderRoomDimensionsPage() {
     try {
         // Set loading state
         this.setAttribute('submitting', '');
-        const submitButton = this.shadowRoot.querySelector("#nextBtn");
+        const submitButton = this.querySelector("#nextBtn");
         if (submitButton) {
             submitButton.disabled = true;
             submitButton.textContent = "Submitting...";
@@ -937,7 +872,7 @@ renderRoomDimensionsPage() {
     } finally {
         // Clean up loading state
         this.removeAttribute('submitting');
-        const submitButton = this.shadowRoot.querySelector("#nextBtn");
+        const submitButton = this.querySelector("#nextBtn");
         if (submitButton) {
             submitButton.disabled = false;
             submitButton.textContent = "GET QUOTE";
@@ -947,7 +882,7 @@ renderRoomDimensionsPage() {
 
 // 1. Replace this method to fix the layout of the estimate cards
 renderThankYouWithEstimates() {
-    const thankYouPage = this.shadowRoot.querySelector('#page4');
+    const thankYouPage = this.querySelector('#page4');
     if (!thankYouPage) return;
 
     let html = `
@@ -1019,15 +954,15 @@ showPage(pageNum) {
         return;
     }
     
-    const pages = this.shadowRoot.querySelectorAll(".form-page");
+    const pages = this.querySelectorAll(".form-page");
     pages.forEach((pg, i) => {
         pg.classList.toggle("active", i === pageNum - 1);
     });
     
-    const formNav = this.shadowRoot.querySelector(".form-nav");
-    const beginButton = this.shadowRoot.querySelector("#beginBtn");
-    const prevButton = this.shadowRoot.querySelector("#prevBtn");
-    const nextButton = this.shadowRoot.querySelector("#nextBtn");
+    const formNav = this.querySelector(".form-nav");
+    const beginButton = this.querySelector("#beginBtn");
+    const prevButton = this.querySelector("#prevBtn");
+    const nextButton = this.querySelector("#nextBtn");
 
     // This is the key change to hide the entire bottom nav bar on the final page
     if (pageNum === this.totalPages) { // Thank You Page
@@ -1056,7 +991,7 @@ showPage(pageNum) {
 
     if (pageNum > 1 && this.classList.contains('fullscreen')) {
         setTimeout(() => {
-            const formBody = this.shadowRoot.querySelector('.form-body');
+            const formBody = this.querySelector('.form-body');
             if (formBody) formBody.scrollTo({ top: 0, behavior: 'smooth' });
         }, 0);
     }
@@ -1074,7 +1009,7 @@ showPage(pageNum) {
             rooms: []
         };
         
-        const inputs = this.shadowRoot.querySelectorAll('input, select, textarea');
+        const inputs = this.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
             if (input.type === 'checkbox' || input.type === 'radio') {
                 input.checked = false;
@@ -1085,7 +1020,7 @@ showPage(pageNum) {
         });
         
         // Hide the "Other" room input
-        const otherRoomContainer = this.shadowRoot.querySelector('#otherRoomContainer');
+        const otherRoomContainer = this.querySelector('#otherRoomContainer');
         if (otherRoomContainer) {
             otherRoomContainer.style.display = 'none';
         }
