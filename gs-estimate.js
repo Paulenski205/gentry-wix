@@ -73,7 +73,7 @@ this.attachShadow({ mode: 'open' });
 async connectedCallback() {
     // URLs for your hosted files
     const htmlUrl = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@51f07c1abd6eb45b4b5ef865691aa591a56e7987/gs-estimate.html";
-    const cssUrl = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@0f2710ce328d3165b038e56de10c9410ac43c8b1/gs-estimate.css";
+    const cssUrl = "https://cdn.jsdelivr.net/gh/Paulenski205/gentry-wix@51f07c1abd6eb45b4b5ef865691aa591a56e7987/gs-estimate.css";
 
     try {
         console.log("Component connected. Fetching resources...");
